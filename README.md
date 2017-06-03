@@ -1,5 +1,7 @@
 # geotrellis-gdal
 
+[![Build Status](https://travis-ci.org/geotrellis/geotrellis-gdal.svg?branch=master)](https://travis-ci.org/geotrellis/geotrellis-gdal)
+
 > GDAL is a translator library for raster and vector geospatial data
 > formats
 - [gdal.org](http://gdal.org/)
