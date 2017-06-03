@@ -1,34 +1,61 @@
-lazy val commonSettings = Seq(
-  version := Version.geotrellisGdal,
-  scalaVersion := Version.scala,
-  crossScalaVersions := Version.crossScala,
-  description := "GeoTrellis benchmarking project",
-  organization := "com.azavea.geotrellis",
-  licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-  scalacOptions ++= Seq(
-    "-deprecation",
-    "-unchecked",
-    "-Yinline-warnings",
-    "-language:implicitConversions",
-    "-language:reflectiveCalls",
-    "-language:higherKinds",
-    "-language:postfixOps",
-    "-language:existentials",
-    "-feature"),
+import sbt._
 
-  resolvers += Resolver.bintrayRepo("azavea", "maven"),
-  libraryDependencies ++= Seq(
-    "org.scalatest"       %%  "scalatest"      % "2.2.0" % "test"
-  ),
+version := Version.geotrellisGdal
+scalaVersion := Version.scala
+description := "GeoTrellis GDAL Bindings"
+organization := "com.azavea.geotrellis"
+name := "geotrellis-gdal"
+licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
+scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
+  "-feature"
+)
+publishMavenStyle := true
+publishArtifact in Test := false
+pomIncludeRepository := { _ => false }
 
-  parallelExecution in Test := false,
+pomExtra := (
+  <scm>
+    <url>git@github.com:geotrellis/geotrellis-gdal.git</url>
+    <connection>scm:git:git@github.com:geotrellis/geotrellis-gdal.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>echeipesh</id>
+      <name>Eugene Cheipesh</name>
+      <url>http://github.com/echeipesh/</url>
+    </developer>
+    <developer>
+      <id>lossyrob</id>
+      <name>Rob Emanuele</name>
+      <url>http://github.com/lossyrob/</url>
+    </developer>
+    <developer>
+      <id>hjaekel</id>
+      <name>Holger Jaekel</name>
+      <url>http://github.com/hjaekel/</url>
+    </developer>
+    <developer>
+      <id>schBen</id>
+      <name>Benjamin Schmeichel</name>
+      <url>http://github.com/schben/</url>
+    </developer>
+  </developers>)
 
-  shellPrompt := { s => Project.extract(s).currentProject.id + " > " }
-) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings
+libraryDependencies ++= Seq(
+  "org.scalatest"               %%  "scalatest"           % "2.2.0"       % "test",
+  "org.gdal"                    %   "gdal"                % "2.1.2",
+  "org.locationtech.geotrellis" %% "geotrellis-raster"    % "1.0.0",
+  "org.locationtech.geotrellis" %% "geotrellis-spark"     % "1.0.0",
+  "org.locationtech.geotrellis" %% "geotrellis-spark-etl" % "1.0.0",
+  "com.github.nscala-time"      %% "nscala-time"          % "2.16.0",
+  "org.apache.spark"            %% "spark-core"           % Version.spark  % "provided",
+  "org.apache.hadoop"           %  "hadoop-client"        % Version.hadoop % "provided",
+  "com.github.scopt"            %% "scopt"                % "3.5.0"
+)
 
-lazy val root = Project("root", file(".")).
-  aggregate(geotrellisRaster)
+fork in Test := true
+parallelExecution in Test := false
 
-lazy val geotrellisRaster = Project("geotrellis-gdal", file("gdal")).
-  settings(commonSettings: _*)
-
+javaOptions in Test += "-Djava.library.path=\"" + Environment.javaLibraryPath + "\""
