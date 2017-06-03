@@ -84,7 +84,7 @@
         <geotrellis.version>1.0.0</geotrellis.version>
         <nscala-time.version>2.16.0</nscala-time.version>
         <scopt.version>3.5.0</scopt.version>
-        <gdal.version>2.1.2</gdal.version>
+        <gdal.version>2.1.0</gdal.version>
         <hadoop.version>2.2.0</hadoop.version>
 
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>

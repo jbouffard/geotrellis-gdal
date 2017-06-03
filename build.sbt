@@ -44,18 +44,18 @@ pomExtra := (
   </developers>)
 
 libraryDependencies ++= Seq(
-  "org.scalatest"               %%  "scalatest"           % "2.2.0"       % "test",
-  "org.gdal"                    %   "gdal"                % "2.1.2",
-  "org.locationtech.geotrellis" %% "geotrellis-raster"    % "1.0.0",
-  "org.locationtech.geotrellis" %% "geotrellis-spark"     % "1.0.0",
-  "org.locationtech.geotrellis" %% "geotrellis-spark-etl" % "1.0.0",
+  "org.gdal"                    %   "gdal"                % Version.gdal,
+  "org.locationtech.geotrellis" %% "geotrellis-raster"    % Version.geotrellis % Provided,
+  "org.locationtech.geotrellis" %% "geotrellis-spark"     % Version.geotrellis % Provided,
+  "org.locationtech.geotrellis" %% "geotrellis-spark-etl" % Version.geotrellis % Provided,
+  "org.apache.spark"            %% "spark-core"           % Version.spark  % Provided,
+  "org.apache.hadoop"           %  "hadoop-client"        % Version.hadoop % Provided,
+  "org.scalatest"               %% "scalatest"            % "2.2.0"       % "test",
   "com.github.nscala-time"      %% "nscala-time"          % "2.16.0",
-  "org.apache.spark"            %% "spark-core"           % Version.spark  % "provided",
-  "org.apache.hadoop"           %  "hadoop-client"        % Version.hadoop % "provided",
   "com.github.scopt"            %% "scopt"                % "3.5.0"
 )
 
 fork in Test := true
 parallelExecution in Test := false
 
-javaOptions in Test += "-Djava.library.path=\"" + Environment.javaLibraryPath + "\""
+javaOptions in Test += s"-Djava.library.path=${Environment.javaLibraryPath}"

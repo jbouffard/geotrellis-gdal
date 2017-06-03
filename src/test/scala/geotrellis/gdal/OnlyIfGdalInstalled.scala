@@ -11,7 +11,9 @@ trait OnlyIfGdalInstalled extends FunSpec with BeforeAndAfterAll {
       gdal.AllRegister()
       f
     } catch {
-      case e: java.lang.UnsatisfiedLinkError => ignore("Java GDAL bindings not installed, skipping"){}
+      case e: java.lang.UnsatisfiedLinkError =>
+        info(e.toString)
+        ignore("Java GDAL bindings not installed, skipping"){}
     }
   }
 
