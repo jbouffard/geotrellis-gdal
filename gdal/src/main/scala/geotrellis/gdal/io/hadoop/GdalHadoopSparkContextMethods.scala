@@ -25,7 +25,6 @@ import geotrellis.gdal.io.hadoop.GdalInputFormat._
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 
-
 trait GdalHadoopSparkContextMethods extends HadoopSparkContextMethods {
   def gdalRDD(path: Path): RDD[(GdalRasterInfo, Tile)] = {
     val updatedConf = sc.hadoopConfiguration.withInputDirectory(path)

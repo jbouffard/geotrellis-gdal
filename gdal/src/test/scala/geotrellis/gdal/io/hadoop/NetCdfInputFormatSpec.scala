@@ -1,8 +1,8 @@
 package geotrellis.gdal.io.hadoop
 
-import org.scalatest.{FunSpec, Matchers}
-
 import java.time.{ZoneOffset, ZonedDateTime}
+
+import org.scalatest.{FunSpec, Matchers}
 
 class NetCdfInputFormatSpec extends FunSpec with Matchers {
 

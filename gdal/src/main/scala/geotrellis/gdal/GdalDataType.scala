@@ -20,9 +20,11 @@ import org.gdal.gdal.gdal
 
 object GdalDataType {
   val types =
-    List(TypeUnknown,ByteConstantNoDataCellType, TypeUInt16,IntConstantNoDataCellType16,TypeUInt32,IntConstantNoDataCellType32,
-         FloatConstantNoDataCellType32,FloatConstantNoDataCellType64,TypeCInt16,TypeCInt32,TypeCFloat32,
-         TypeCFloat64)
+    List(
+      TypeUnknown, ByteConstantNoDataCellType, TypeUInt16, IntConstantNoDataCellType16, TypeUInt32,
+      IntConstantNoDataCellType32, FloatConstantNoDataCellType32, FloatConstantNoDataCellType64, TypeCInt16,
+      TypeCInt32, TypeCFloat32, TypeCFloat64
+    )
 
   implicit def intToGdalDataType(i: Int): GdalDataType =
     types.find(_.code == i) match {

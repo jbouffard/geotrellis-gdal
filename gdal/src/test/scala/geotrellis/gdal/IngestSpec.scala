@@ -1,5 +1,7 @@
 package geotrellis.gdal
 
+import geotrellis.gdal.io.hadoop._
+
 import geotrellis.proj4.LatLng
 import geotrellis.spark._
 import geotrellis.spark.ingest._

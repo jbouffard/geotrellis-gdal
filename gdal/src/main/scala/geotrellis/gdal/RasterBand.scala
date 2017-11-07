@@ -35,11 +35,7 @@ class RasterBand(band: Band, cols: Int, rows: Int) {
   lazy val noDataValue: Option[Double] = {
     val arr = Array.ofDim[java.lang.Double](1)
     band.GetNoDataValue(arr)
-    if(arr(0) != null) {
-      Some(arr(0))
-    } else {
-      None
-    }
+    Option(arr(0))
   }
 
   lazy val rasterType: GdalDataType =
@@ -73,9 +69,8 @@ class RasterBand(band: Band, cols: Int, rows: Int) {
     else Some(desc)
   }
 
-  lazy val categories: Seq[String] = {
+  lazy val categories: Seq[String] =
     band.GetRasterCategoryNames.map(_.asInstanceOf[String]).toSeq
-  }
 
   def metadata: List[String] =
     band.GetMetadata_List("").toList.map(_.asInstanceOf[String])
@@ -154,6 +149,9 @@ class RasterBand(band: Band, cols: Int, rows: Int) {
           FloatArrayTile(dataFloat, cols, rows)
         case geotrellis.raster.DoubleConstantNoDataCellType =>
           DoubleArrayTile(dataDouble, cols, rows)
+        case geotrellis.raster.ByteConstantNoDataCellType => ???
+        case geotrellis.raster.UByteConstantNoDataCellType => ???
+        case geotrellis.raster.UShortConstantNoDataCellType => ???
       }).mutable
 
     // Replace NODATA values

@@ -28,6 +28,5 @@ object Dependencies {
   val hadoopClient = "org.apache.hadoop" %  "hadoop-client" % Version.hadoop
 
   val scalaTest  = "org.scalatest" %% "scalatest" % "3.0.4"
-  val nscalaTime = "com.github.nscala-time"      %% "nscala-time" % "2.18.0"
   val scopt      = "com.github.scopt"            %% "scopt"       % "3.7.0"
 }

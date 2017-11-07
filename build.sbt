@@ -9,8 +9,15 @@ lazy val commonSettings = Seq(
   licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   headerLicense := Some(HeaderLicense.ALv2("2017", "Azavea")),
   scalacOptions ++= Seq(
-    "-unchecked",
     "-deprecation",
+    "-unchecked",
+    "-feature",
+    "-language:implicitConversions",
+    "-language:reflectiveCalls",
+    "-language:higherKinds",
+    "-language:postfixOps",
+    "-language:existentials",
+    "-language:experimental.macros",
     "-feature"
   ),
   publishMavenStyle := true,

@@ -16,23 +16,9 @@
 
 package geotrellis.gdal
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import org.gdal.gdal.Band
-import org.gdal.gdal.ColorTable
-import org.gdal.gdal.Dataset
-import org.gdal.gdal.Driver
-import org.gdal.gdal.GCP
 import org.gdal.gdal.gdal
-import org.gdal.gdal.TermProgressCallback
-import org.gdal.gdal.RasterAttributeTable
-import org.gdal.gdalconst.gdalconstConstants
 import org.gdal.osr.CoordinateTransformation
 import org.gdal.osr.SpatialReference
-
-import org.gdal.ogr.Geometry
 
 import scala.collection.JavaConversions._
 
@@ -100,7 +86,7 @@ object GdalInfo {
     if(options.showMetadata) {
       def printMetadata(header: String, id: String = "") = {
         val md = raster.metadata(id)
-        if(!md.isEmpty) {
+        if(md.nonEmpty) {
           println(header)
           for(key <- md) {
             println(s"  $key")
@@ -186,7 +172,7 @@ object GdalInfo {
 
   def reportCorner(raster: RasterDataSet, cornerName: String, x: Double, y: Double) = {
     print(cornerName + " ")
-    if (raster.geoTransform.filter(_ != 0).length == 0) {
+    if (raster.geoTransform.exists(_ != 0)) {
       println(s"($x,$y)")
     } else {
       val gt = raster.geoTransform
@@ -203,15 +189,17 @@ object GdalInfo {
               val transform = CoordinateTransformation
                 .CreateCoordinateTransformation(srs, latLong)
               if (transform != null) {
-		val point = transform.TransformPoint(geox, geoy, 0)
+                val point = transform.TransformPoint(geox, geoy, 0)
                 val xtrans = gdal.DecToDMS(point(0), "Long", 2)
                 val ytrans = gdal.DecToDMS(point(1), "Lat", 2)
-		println(s"($xtrans,$ytrans)");
-		transform.delete();
-	      }
+                println(s"($xtrans,$ytrans)")
+                transform.delete()
+              }
             }
           }
-          if (srs != null) { srs.delete() }
+          if (srs != null) {
+            srs.delete()
+          }
         case None => println()
       }
     }

@@ -25,8 +25,7 @@ class GdalException(code: Int, msg: String)
 
 object GdalException {
   def lastError(): GdalException =
-    new GdalException(gdal.GetLastErrorNo,
-                      gdal.GetLastErrorMsg)
+    new GdalException(gdal.GetLastErrorNo, gdal.GetLastErrorMsg)
 }
 
 object Gdal {

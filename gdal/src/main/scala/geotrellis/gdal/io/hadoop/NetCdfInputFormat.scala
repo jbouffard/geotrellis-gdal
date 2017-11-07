@@ -18,8 +18,6 @@ package geotrellis.gdal.io.hadoop
 
 import java.time.{ZoneOffset, ZonedDateTime}
 
-import org.joda.time.{DateTime, DateTimeZone}
-
 object NetCdfInputFormat {
 
   val Type = 'T'

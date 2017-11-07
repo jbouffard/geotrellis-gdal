@@ -8,6 +8,5 @@ libraryDependencies ++= Seq(
   Dependencies.sparkCore % Provided,
   Dependencies.hadoopClient % Provided,
   Dependencies.scalaTest % Test,
-  Dependencies.nscalaTime,
   Dependencies.scopt
 )
