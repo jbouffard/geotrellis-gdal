@@ -1,19 +1,16 @@
 package geotrellis.gdal
 
-import geotrellis.gdal.io.hadoop.GdalInputFormat.{GdalFileInfo, GdalRasterInfo}
-import geotrellis.gdal.io.hadoop._
 import geotrellis.proj4._
 import geotrellis.raster._
+import geotrellis.raster.testkit._
 import geotrellis.raster.io.geotiff._
-import geotrellis.spark.testkit.TestEnvironment
 
-import org.apache.spark.rdd.RDD
 import org.scalatest._
 
-class GdalReaderSpec extends FunSpec
-  with Matchers
+
+class RasterDatasetSpec extends FunSpec
+  with RasterMatchers
   with OnlyIfGdalInstalled
-  with TestEnvironment
 {
 
   val path = "src/test/resources/data/slope.tif"
@@ -22,7 +19,9 @@ class GdalReaderSpec extends FunSpec
     ifGdalInstalled {
       it("should match one read with GeoTools") {
         println("Reading with GDAL...")
-        val (gdRaster, RasterExtent(gdExt, _, _, _, _)) = GdalReader.read(path)
+        val source = RasterDataset(path)
+        val gdRaster = Raster(source.read(source.gridBounds).get.band(0), source.extent)
+        val gdExt = source.extent
         println("Reading with GeoTools....")
         val Raster(gtRaster, gtExt) = SinglebandGeoTiff(path).raster
         println("Done.")
@@ -51,8 +50,8 @@ class GdalReaderSpec extends FunSpec
       }
 
       it("should read CRS from file") {
-        val rasterDataSet = Gdal.open("src/test/resources/data/geotiff-test-files/all-ones.tif")
-        rasterDataSet.crs should equal(Some(LatLng))
+        val rasterDataSet = RasterDataset("src/test/resources/data/geotiff-test-files/all-ones.tif")
+        rasterDataSet.crs.toProj4String should equal(LatLng.toProj4String)
       }
     }
   }
@@ -60,29 +59,15 @@ class GdalReaderSpec extends FunSpec
   describe("reading a JPEG2000") {
     ifGdalWithJpeg2000Installed {
       val lengthExpected = 100
-      type TypeExpected = IntCells
       val jpeg2000Path = "src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
 
       it("should read a JPEG2000 from a file") {
 
-        val (tile: Tile, extent: RasterExtent) = GdalReader.read(jpeg2000Path)
+        val source = RasterDataset(jpeg2000Path)
+        val extent: RasterExtent = source.rasterExtent
 
         extent.cols should be (lengthExpected)
         extent.rows should be (lengthExpected)
-        tile.cellType shouldBe a [TypeExpected]
-      }
-
-      it("should load a JPEG2000 into an RDD") {
-        val tileRdd: RDD[(GdalRasterInfo, Tile)] =
-          sc.gdalRDD(new org.apache.hadoop.fs.Path(jpeg2000Path))
-
-        val first = tileRdd.first()
-        val fileInfo: GdalFileInfo = first._1.file
-        val tile: Tile = first._2
-
-        fileInfo.rasterExtent.cols should be (lengthExpected)
-        fileInfo.rasterExtent.rows should be (lengthExpected)
-        tile.cellType shouldBe a [TypeExpected]
       }
     }
   }

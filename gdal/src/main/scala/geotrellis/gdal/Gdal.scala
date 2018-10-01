@@ -16,11 +16,13 @@
 
 package geotrellis.gdal
 
+import geotrellis.raster._
+
 import org.gdal.gdal.gdal
 import org.gdal.gdal.Dataset
 import org.gdal.gdalconst.gdalconstConstants
 
-class GdalException(code: Int, msg: String) 
+class GdalException(code: Int, msg: String)
     extends RuntimeException(s"GDAL ERROR $code: $msg")
 
 object GdalException {
@@ -31,11 +33,55 @@ object GdalException {
 object Gdal {
   gdal.AllRegister()
 
-  def open(path: String): RasterDataSet = {
+  def deriveGTCellType(
+    datatype: GdalDataType,
+    noDataValue: Option[Double] = None,
+    typeSizeInBits: Option[Int] = None
+  ): CellType =
+    datatype match {
+      case TypeUnknown | TypeFloat64 =>
+        noDataValue match {
+          case Some(nd) => DoubleUserDefinedNoDataCellType(nd)
+          case _ => DoubleConstantNoDataCellType
+        }
+      case TypeByte =>
+        typeSizeInBits match {
+          case Some(bits) if bits == 1 => BitCellType
+          case _ =>
+            noDataValue match {
+              case Some(nd) => ByteUserDefinedNoDataCellType(nd.toByte)
+              case _ => ByteCellType
+            }
+        }
+      case TypeUInt16 =>
+        noDataValue match {
+          case Some(nd) => UShortUserDefinedNoDataCellType(nd.toShort)
+          case _ => UShortConstantNoDataCellType
+        }
+      case TypeInt16 =>
+        noDataValue match {
+          case Some(nd) => ShortUserDefinedNoDataCellType(nd.toShort)
+          case _ => ShortConstantNoDataCellType
+        }
+      case TypeUInt32 | TypeInt32 =>
+        noDataValue match {
+          case Some(nd) => IntUserDefinedNoDataCellType(nd.toInt)
+          case _ => IntConstantNoDataCellType
+        }
+      case TypeFloat32 =>
+        noDataValue match {
+          case Some(nd) => FloatUserDefinedNoDataCellType(nd.toFloat)
+          case _ => FloatConstantNoDataCellType
+        }
+      case TypeCInt16 | TypeCInt32 | TypeCFloat32 | TypeCFloat64 =>
+        throw new Exception("Complex datatypes are not supported")
+    }
+
+  def open(path: String): Dataset = {
     val ds = gdal.Open(path, gdalconstConstants.GA_ReadOnly)
     if(ds == null) {
       throw GdalException.lastError()
-    }
-    new RasterDataSet(ds)
+    } else
+      ds
   }
 }
