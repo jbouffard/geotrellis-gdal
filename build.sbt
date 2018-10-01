@@ -57,11 +57,13 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("snapshots"),
     "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
     "locationtech-snapshots" at "https://repo.locationtech.org/content/groups/snapshots",
-    "boundless repo" at "https://repo.boundlessgeo.com/main/"
+    "boundless repo" at "https://repo.boundlessgeo.com/main/",
+    "geosolutions" at "http://maven.geo-solutions.it/",
+    "osgeo" at "http://download.osgeo.org/webdev/geotools/"
   ),
   fork in Test := true,
   parallelExecution in Test := false,
-  javaOptions in Test += s"-Djava.library.path=${Environment.javaLibraryPath}"
+  javaOptions ++= Seq("-Xmx1024m", "-Xmx6144m", "-Djava.library.path=/usr/local/lib")
 )
 
 lazy val root = (project in file("."))
