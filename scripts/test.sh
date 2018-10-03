@@ -5,4 +5,4 @@ docker run \
   -v $(pwd)/src:/root/src \
   -v ~/.ivy2:/root/.ivy2 \
   geotrellis/gdal-test \
-  cd ~ & sbt test
+  cd ~ & sbt "project gdal" test & sbt "project gdal-etl" test

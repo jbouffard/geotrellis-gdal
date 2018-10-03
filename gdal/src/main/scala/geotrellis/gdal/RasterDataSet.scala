@@ -42,14 +42,17 @@ class RasterDataSet(val ds: Dataset) {
     else v.toSeq.map { _.asInstanceOf[String] }
   }
 
-  lazy val cols: Long = ds.getRasterXSize
-  lazy val rows: Long = ds.getRasterYSize
+  private lazy val colsLong: Long = ds.getRasterXSize
+  private lazy val rowsLong: Long = ds.getRasterYSize
 
-  lazy val extent: Extent = 
+  lazy val cols: Int = colsLong.toInt
+  lazy val rows: Int = rowsLong.toInt
+
+  lazy val extent: Extent =
     Extent(xmin, ymin, xmax, ymax)
 
   lazy val rasterExtent: RasterExtent = {
-    if(cols * rows > Int.MaxValue) 
+    if(colsLong * rowsLong > Int.MaxValue)
       sys.error(s"Cannot read this raster, cols * rows exceeds maximum array index ($cols * $rows)")
 
     RasterExtent(extent, cols.toInt, rows.toInt)
@@ -73,9 +76,9 @@ class RasterDataSet(val ds: Dataset) {
     else Some(proj)
   }
 
-  lazy val crs: Option[CRS] = 
-    projection map { projection => 
-      val srs = new SpatialReference(projection)    
+  lazy val crs: Option[CRS] =
+    projection map { projection =>
+      val srs = new SpatialReference(projection)
       CRS.fromString(srs.ExportToProj4())
     }
 
@@ -99,7 +102,15 @@ class RasterDataSet(val ds: Dataset) {
 
   def band(i: Int): RasterBand = new RasterBand(ds.GetRasterBand(i), cols.toInt, rows.toInt)
 
-  lazy val bandCount: Int = ds.getRasterCount 
+  lazy val noDataValue: Option[Double] = {
+    val band = ds.GetRasterBand(1)
+    val arr = Array.ofDim[java.lang.Double](1)
+    band.GetNoDataValue(arr)
+
+    arr.headOption.flatMap(Option(_)).map(_.doubleValue)
+  }
+
+  lazy val bandCount: Int = ds.getRasterCount
 
   lazy val bands: Vector[RasterBand] =
     (1 to bandCount)

@@ -35,7 +35,8 @@ class RasterBand(band: Band, cols: Int, rows: Int) {
   lazy val noDataValue: Option[Double] = {
     val arr = Array.ofDim[java.lang.Double](1)
     band.GetNoDataValue(arr)
-    Option(arr(0))
+
+    arr.headOption.flatMap(Option(_)).map(_.doubleValue)
   }
 
   lazy val rasterType: GdalDataType =
