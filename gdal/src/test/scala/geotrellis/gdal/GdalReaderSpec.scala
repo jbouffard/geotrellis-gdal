@@ -22,7 +22,10 @@ class GdalReaderSpec extends FunSpec
     ifGdalInstalled {
       it("should match one read with GeoTools") {
         println("Reading with GDAL...")
-        val (gdRaster, RasterExtent(gdExt, _, _, _, _)) = GdalReader.read(path)
+        val reader = GdalReader(path)
+        val raster = reader.read()
+        val gdRaster = raster.tile.band(0)
+        val gdExt = raster.extent
         println("Reading with GeoTools....")
         val Raster(gtRaster, gtExt) = SinglebandGeoTiff(path).raster
         println("Done.")
@@ -60,12 +63,15 @@ class GdalReaderSpec extends FunSpec
   describe("reading a JPEG2000") {
     ifGdalWithJpeg2000Installed {
       val lengthExpected = 100
-      type TypeExpected = IntCells
+      type TypeExpected = UShortCells
       val jpeg2000Path = "src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
 
       it("should read a JPEG2000 from a file") {
 
-        val (tile: Tile, extent: RasterExtent) = GdalReader.read(jpeg2000Path)
+        val reader = GdalReader(jpeg2000Path)
+        val raster = reader.read()
+        val tile = raster.tile
+        val extent = raster.rasterExtent
 
         extent.cols should be (lengthExpected)
         extent.rows should be (lengthExpected)

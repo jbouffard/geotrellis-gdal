@@ -17,7 +17,7 @@
 package geotrellis.gdal.io.hadoop
 
 import geotrellis.gdal.io.hadoop.GdalInputFormat._
-import geotrellis.gdal.{Gdal, RasterBand, RasterDataSet}
+import geotrellis.gdal.{Gdal, GdalReader, RasterBand, RasterDataSet}
 import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster._
 import geotrellis.spark.io.hadoop.HdfsUtils
@@ -66,12 +66,14 @@ class GdalRecordReader extends RecordReader[GdalRasterInfo, Tile] {
   private var conf: Configuration = _
   private var file: LocalPath = _
   private var rasterDataSet: RasterDataSet = _
+  private var reader: GdalReader = _
   private var fileInfo: GdalFileInfo = _
 
   private var bandIndex: Int = 0
   private var bandCount: Int = _
 
   private var band: RasterBand = null
+  private var bandRaster: Raster[MultibandTile] = null
   private var bandMeta: Map[String, String] = _
 
 
@@ -87,6 +89,7 @@ class GdalRecordReader extends RecordReader[GdalRasterInfo, Tile] {
     else
       hadoopfilename
     rasterDataSet   = Gdal.open(filename)
+    reader          = GdalReader(rasterDataSet)
     bandCount       = rasterDataSet.bandCount
 
     fileInfo =
@@ -108,6 +111,7 @@ class GdalRecordReader extends RecordReader[GdalRasterInfo, Tile] {
     if (hasNext) {
       bandIndex += 1
       band = rasterDataSet.band(bandIndex)
+      bandRaster = reader.read(bands = Seq(bandIndex - 1))
       bandMeta = band
         .metadata
         .map(_.split("="))
@@ -117,5 +121,5 @@ class GdalRecordReader extends RecordReader[GdalRasterInfo, Tile] {
     hasNext
   }
   def getCurrentKey   = GdalRasterInfo(fileInfo, bandMeta)
-  def getCurrentValue = band.toTile()
+  def getCurrentValue = bandRaster.tile.band(0)
 }
