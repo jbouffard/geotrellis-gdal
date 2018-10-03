@@ -43,19 +43,20 @@ class IngestSpec extends FunSpec
         SpaceTimeKey(SpatialKey(0,0),TemporalKey(ZonedDateTime.parse("2006-03-16T12:00:00.000Z")))
       )
 
+      val resourcesPath = "src/test/resources"
+
       it("should ingest time-band NetCDF") {
-        val source = sc.netCdfRDD(new Path(inputHome, "ipcc-access1-tasmin.nc"))
+        val source = sc.netCdfRDD(new Path(resourcesPath, "ipcc-access1-tasmin.nc"))
         Ingest[TemporalProjectedExtent, SpaceTimeKey](source, LatLng, FloatingLayoutScheme(256)){ (rdd, level) =>
           val ingestKeys = rdd.keys.collect()
           info(ingestKeys.toList.toString)
           // Ingest uses a tileSize of 512x512, so we have less tiles
-          ingestKeys should contain theSameElementsAs
-            expectedKeys.filterNot(stk => stk.spatialKey.col == 2 || stk.spatialKey.row == 1)
+          ingestKeys should contain theSameElementsAs expectedKeys
         }
       }
 
       it("should ingest time-band NetCDF in stages") {
-        val source = sc.netCdfRDD(new Path(inputHome, "ipcc-access1-tasmin.nc"))
+        val source = sc.netCdfRDD(new Path(resourcesPath, "ipcc-access1-tasmin.nc"))
         val (zoom, rmd) = source.collectMetadata[SpaceTimeKey](LatLng, FloatingLayoutScheme(256))
         val tiled = source.cutTiles[SpaceTimeKey](rmd)
         val ingestKeys = tiled.keys.collect()
