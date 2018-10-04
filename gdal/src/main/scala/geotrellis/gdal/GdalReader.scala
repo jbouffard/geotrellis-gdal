@@ -17,6 +17,7 @@
 package geotrellis.gdal
 
 import geotrellis.raster._
+import geotrellis.vector.Extent
 
 import spire.syntax.cfor._
 import org.gdal.gdal.Dataset
@@ -30,8 +31,11 @@ import java.nio.ByteOrder
 case class GdalReader(rasterDataSet: RasterDataSet) {
   private lazy val dataset: Dataset = rasterDataSet.ds
 
+  def read(extent: Extent): Raster[MultibandTile] =
+    read(rasterDataSet.rasterExtent.gridBoundsFor(extent))
+
   def read(
-    gridBounds: GridBounds = GridBounds(0, 0, rasterDataSet.cols - 1, rasterDataSet.rows - 1),
+    gridBounds: GridBounds = rasterDataSet.gridBounds,
     bands: Seq[Int] = 0 until rasterDataSet.bandCount,
     noDataValue: Option[Double] = rasterDataSet.noDataValue
   ): Raster[MultibandTile] = {
