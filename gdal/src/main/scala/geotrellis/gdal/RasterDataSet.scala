@@ -58,6 +58,9 @@ class RasterDataSet(val ds: Dataset) {
     RasterExtent(extent, cols.toInt, rows.toInt)
   }
 
+  lazy val gridBounds: GridBounds =
+    GridBounds(0, 0, cols - 1, rows - 1)
+
   lazy val xmin: Double =
     geoTransform(0)
 

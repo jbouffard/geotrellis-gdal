@@ -4,6 +4,7 @@ import geotrellis.gdal.io.hadoop.GdalInputFormat.{GdalFileInfo, GdalRasterInfo}
 import geotrellis.gdal.io.hadoop._
 import geotrellis.proj4._
 import geotrellis.raster._
+import geotrellis.raster.testkit._
 import geotrellis.raster.io.geotiff._
 import geotrellis.spark.testkit.TestEnvironment
 
@@ -11,7 +12,7 @@ import org.apache.spark.rdd.RDD
 import org.scalatest._
 
 class GdalReaderSpec extends FunSpec
-  with Matchers
+  with RasterMatchers
   with OnlyIfGdalInstalled
   with TestEnvironment
 {
@@ -20,9 +21,9 @@ class GdalReaderSpec extends FunSpec
 
   describe("reading a GeoTiff") {
     ifGdalInstalled {
+      val reader = GdalReader(path)
       it("should match one read with GeoTools") {
         println("Reading with GDAL...")
-        val reader = GdalReader(path)
         val raster = reader.read()
         val gdRaster = raster.tile.band(0)
         val gdExt = raster.extent
@@ -53,6 +54,18 @@ class GdalReaderSpec extends FunSpec
         }
       }
 
+      it("should do window reads") {
+        val gtiff = MultibandGeoTiff(path)
+        val gridBounds = reader.rasterDataSet.gridBounds.split(15, 21)
+
+        gridBounds.map { case gb =>
+          val actualTile = reader.read(gb).tile
+          val expectedTile = gtiff.tile.crop(gb)
+
+          assertEqual(actualTile, expectedTile)
+        }
+      }
+
       it("should read CRS from file") {
         val rasterDataSet = Gdal.open("src/test/resources/data/geotiff-test-files/all-ones.tif")
         rasterDataSet.crs should equal(Some(LatLng))
@@ -65,17 +78,32 @@ class GdalReaderSpec extends FunSpec
       val lengthExpected = 100
       type TypeExpected = UShortCells
       val jpeg2000Path = "src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
+      val jpegTiffPath = "src/test/resources/data/jpeg2000-test-files/jpegTiff.tif"
+
+      val dataset = Gdal.open(jpeg2000Path)
+      val jpegReader = GdalReader(dataset)
+      val tiffReader = GdalReader(jpegTiffPath)
+
+      val gridBounds: Iterator[GridBounds] =
+        dataset.gridBounds.split(20, 15)
 
       it("should read a JPEG2000 from a file") {
-
-        val reader = GdalReader(jpeg2000Path)
-        val raster = reader.read()
+        val raster = jpegReader.read()
         val tile = raster.tile
         val extent = raster.rasterExtent
 
         extent.cols should be (lengthExpected)
         extent.rows should be (lengthExpected)
         tile.cellType shouldBe a [TypeExpected]
+      }
+
+      it("should do window reads") {
+        gridBounds.map { gb =>
+          val actualTile = jpegReader.read(gb)
+          val expectedTile = tiffReader.read(gb)
+
+          assertEqual(actualTile, expectedTile)
+        }
       }
 
       it("should load a JPEG2000 into an RDD") {
