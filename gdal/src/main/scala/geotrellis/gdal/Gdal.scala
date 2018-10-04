@@ -17,10 +17,11 @@
 package geotrellis.gdal
 
 import org.gdal.gdal.gdal
+import org.gdal.gdal.gdalJNI
 import org.gdal.gdal.Dataset
 import org.gdal.gdalconst.gdalconstConstants
 
-class GdalException(code: Int, msg: String) 
+class GdalException(code: Int, msg: String)
     extends RuntimeException(s"GDAL ERROR $code: $msg")
 
 object GdalException {
@@ -31,7 +32,16 @@ object GdalException {
 object Gdal {
   gdal.AllRegister()
 
-  def open(path: String): RasterDataSet = {
+  def open(
+    path: String,
+    readingParameters: Option[Map[String, String]] = None
+  ): RasterDataSet = {
+    readingParameters
+      .getOrElse(Map[String, String]())
+      .map { case (k, v) =>
+        gdalJNI.SetConfigOption(k, v)
+      }
+
     val ds = gdal.Open(path, gdalconstConstants.GA_ReadOnly)
     if(ds == null) {
       throw GdalException.lastError()
