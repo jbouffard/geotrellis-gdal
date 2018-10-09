@@ -180,7 +180,7 @@ case class GdalReader(rasterDataSet: RasterDataSet) {
               throw new Exception(s"The specified data type is actually unsupported: $bufferType")
         }
 
-    Raster(multibandTile, rasterDataSet.extent)
+    Raster(multibandTile, rasterDataSet.rasterExtent.rasterExtentFor(gridBounds).extent)
   }
 }
 
