@@ -20,6 +20,10 @@ lazy val commonSettings = Seq(
     "-language:experimental.macros",
     "-feature"
   ),
+  bintrayOrganization := Some("azavea"),
+  bintrayRepository := "maven",
+  bintrayVcsUrl := Some("https://github.com/geotrellis/geotrellis-gdal.git"),
+  homepage := Some(url("https://github.com/geotrellis/geotrellis-gdal")),
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false },
