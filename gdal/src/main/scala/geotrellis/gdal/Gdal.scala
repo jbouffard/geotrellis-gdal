@@ -16,11 +16,14 @@
 
 package geotrellis.gdal
 
+import geotrellis.raster.resample._
+
 import org.gdal.gdal.gdal
 import org.gdal.gdal.Dataset
 import org.gdal.gdalconst.gdalconstConstants
 
-class GdalException(code: Int, msg: String) 
+
+class GdalException(code: Int, msg: String)
     extends RuntimeException(s"GDAL ERROR $code: $msg")
 
 object GdalException {
@@ -38,4 +41,19 @@ object Gdal {
     }
     new RasterDataSet(ds)
   }
+
+  def deriveResampleMethodString(method: ResampleMethod): String =
+    method match {
+      case NearestNeighbor => "near"
+      case Bilinear => "bilinear"
+      case CubicConvolution => "cubic"
+      case CubicSpline => "cubicspline"
+      case Lanczos => "lanczos"
+      case Average => "average"
+      case Mode => "mode"
+      case Max => "max"
+      case Min => "min"
+      case Median => "med"
+      case _ => throw new Exception(s"Could not find equivalent GDALResampleMethod for: $method")
+}
 }
