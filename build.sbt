@@ -21,7 +21,7 @@ lazy val commonSettings = Seq(
     "-feature"
   ),
   bintrayOrganization := Some("azavea"),
-  bintrayRepository := "maven",
+  bintrayRepository := "geotrellis",
   bintrayVcsUrl := Some("https://github.com/geotrellis/geotrellis-gdal.git"),
   homepage := Some(url("https://github.com/geotrellis/geotrellis-gdal")),
   publishMavenStyle := true,
