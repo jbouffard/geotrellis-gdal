@@ -17,21 +17,18 @@
 package geotrellis.gdal
 
 import geotrellis.raster._
+import geotrellis.raster.resample.ResampleMethod
 import geotrellis.vector.Extent
 import geotrellis.proj4.CRS
 
-import org.gdal.gdal.Dataset
-import org.gdal.gdal.Band
-import org.gdal.gdal.ColorTable
-import org.gdal.gdal.Driver
-import org.gdal.gdal.GCP
-import org.gdal.gdal.gdal
+import org.gdal.gdal._
 import org.gdal.osr.SpatialReference
 
 import java.awt.Color
 import java.nio.ByteBuffer
 
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
 class RasterDataSet(val ds: Dataset) {
@@ -73,6 +70,9 @@ class RasterDataSet(val ds: Dataset) {
   lazy val ymax: Double =
     geoTransform(3)
 
+  lazy val cellSize: CellSize =
+    CellSize(geoTransform(1), math.abs(geoTransform(5)))
+
   lazy val projection: Option[String] = {
     val proj = ds.GetProjectionRef
     if(proj == null || proj.isEmpty) None
@@ -111,6 +111,33 @@ class RasterDataSet(val ds: Dataset) {
     band.GetNoDataValue(arr)
 
     arr.headOption.flatMap(Option(_)).map(_.doubleValue)
+  }
+
+  def resample(
+    cellSize: CellSize,
+    resampleMethod: ResampleMethod
+  ): RasterDataSet =
+    resample(List("-tap", "-tr", s"${cellSize.width}", s"${cellSize.height}"), resampleMethod)
+
+  def resample(
+    tileDimensions: (Int, Int),
+    resampleMethod: ResampleMethod
+  ): RasterDataSet =
+    resample(List("-ts", s"${tileDimensions._1}", s"${tileDimensions._2}"), resampleMethod)
+
+  private def resample(
+    targetParams: List[String],
+    resampleMethod: ResampleMethod
+  ): RasterDataSet = {
+    val optionsList =
+      List(
+        "-of", "VRT",
+        "-r", s"${Gdal.deriveResampleMethodString(resampleMethod)}"
+      ) ::: targetParams
+
+    val warpOptions = new WarpOptions(new java.util.Vector(optionsList.asJava))
+
+    new RasterDataSet(gdal.Warp("", Array(ds), warpOptions))
   }
 
   lazy val bandCount: Int = ds.getRasterCount

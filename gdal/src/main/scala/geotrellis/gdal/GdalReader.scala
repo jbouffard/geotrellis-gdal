@@ -32,10 +32,11 @@ case class GdalReader(rasterDataSet: RasterDataSet) {
   private lazy val dataset: Dataset = rasterDataSet.ds
 
   def read(extent: Extent): Raster[MultibandTile] =
-    read(rasterDataSet.rasterExtent.gridBoundsFor(extent))
+    read(rasterDataSet.rasterExtent.gridBoundsFor(extent), Some(extent))
 
   def read(
     gridBounds: GridBounds = rasterDataSet.gridBounds,
+    targetExtent: Option[Extent] = None,
     bands: Seq[Int] = 0 until rasterDataSet.bandCount,
     noDataValue: Option[Double] = rasterDataSet.noDataValue
   ): Raster[MultibandTile] = {
@@ -46,7 +47,7 @@ case class GdalReader(rasterDataSet: RasterDataSet) {
     val indexBand = bands.zipWithIndex.map { case (v, i) => (i, v) }.toMap
 
     // setting buffer properties
-    val pixelCount = rasterDataSet.cols * rasterDataSet.rows
+    val pixelCount = gridBounds.width * gridBounds.height
     // sampleFormat
     val bufferType = baseBand.getDataType
     // samples per pixel
@@ -180,7 +181,7 @@ case class GdalReader(rasterDataSet: RasterDataSet) {
               throw new Exception(s"The specified data type is actually unsupported: $bufferType")
         }
 
-    Raster(multibandTile, rasterDataSet.rasterExtent.rasterExtentFor(gridBounds).extent)
+    Raster(multibandTile, targetExtent.getOrElse(rasterDataSet.rasterExtent.rasterExtentFor(gridBounds).extent))
   }
 }
 
