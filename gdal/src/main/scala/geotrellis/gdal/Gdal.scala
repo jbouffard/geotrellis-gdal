@@ -22,6 +22,8 @@ import org.gdal.gdal.gdal
 import org.gdal.gdal.Dataset
 import org.gdal.gdalconst.gdalconstConstants
 
+import java.net.URI
+
 
 class GdalException(code: Int, msg: String)
     extends RuntimeException(s"GDAL ERROR $code: $msg")
@@ -34,8 +36,11 @@ object GdalException {
 object Gdal {
   gdal.AllRegister()
 
-  def open(path: String): RasterDataSet = {
-    val ds = gdal.Open(path, gdalconstConstants.GA_ReadOnly)
+  def open(path: String): RasterDataSet =
+    open(new URI(path))
+
+  def open(uri: URI): RasterDataSet = {
+    val ds = gdal.Open(URIFormatter(uri), gdalconstConstants.GA_ReadOnly)
     if(ds == null) {
       throw GdalException.lastError()
     }
@@ -55,5 +60,5 @@ object Gdal {
       case Min => "min"
       case Median => "med"
       case _ => throw new Exception(s"Could not find equivalent GDALResampleMethod for: $method")
-}
+    }
 }
