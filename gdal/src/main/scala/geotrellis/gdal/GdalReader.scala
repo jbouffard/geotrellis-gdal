@@ -24,6 +24,7 @@ import org.gdal.gdal.Dataset
 import org.gdal.gdal.gdal
 import org.gdal.gdalconst.gdalconstConstants
 
+import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -189,4 +190,7 @@ case class GdalReader(rasterDataSet: RasterDataSet) {
 object GdalReader {
   def apply(path: String): GdalReader =
     GdalReader(Gdal.open(path))
+
+  def apply(uri: URI): GdalReader =
+    GdalReader(Gdal.open(uri))
 }
