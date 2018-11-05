@@ -8,6 +8,8 @@ import geotrellis.raster.testkit._
 import geotrellis.raster.io.geotiff._
 import geotrellis.spark.testkit.TestEnvironment
 
+import java.io.File
+
 import org.apache.spark.rdd.RDD
 import org.scalatest._
 
@@ -18,10 +20,11 @@ class GdalReaderSpec extends FunSpec
 {
 
   val path = "src/test/resources/data/slope.tif"
+  val uri = s"file://${new File(path).getAbsolutePath()}"
 
   describe("reading a GeoTiff") {
     ifGdalInstalled {
-      val reader = GdalReader(path)
+      val reader = GdalReader(uri)
       it("should match one read with GeoTools") {
         println("Reading with GDAL...")
         val raster = reader.read()
@@ -78,9 +81,11 @@ class GdalReaderSpec extends FunSpec
       val lengthExpected = 100
       type TypeExpected = UShortCells
       val jpeg2000Path = "src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
+      val jpeg2000URI = s"file://${new File(jpeg2000Path).getAbsolutePath()}"
+
       val jpegTiffPath = "src/test/resources/data/jpeg2000-test-files/jpegTiff.tif"
 
-      val dataset = Gdal.open(jpeg2000Path)
+      val dataset = Gdal.open(jpeg2000URI)
       val jpegReader = GdalReader(dataset)
       val tiffReader = GdalReader(jpegTiffPath)
 
