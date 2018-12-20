@@ -63,10 +63,7 @@ lazy val commonSettings = Seq(
     "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
     "locationtech-snapshots" at "https://repo.locationtech.org/content/groups/snapshots",
     "boundless repo" at "https://repo.boundlessgeo.com/main/"
-  ),
-  fork in Test := true,
-  parallelExecution in Test := false,
-  javaOptions in Test += s"-Djava.library.path=${Environment.javaLibraryPath}"
+  )
 )
 
 lazy val root = (project in file("."))

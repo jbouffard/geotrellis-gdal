@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import scala.util.Properties
 
 object Version {
   val geotrellisGdal  = "0.14.0" + Environment.versionSuffix
@@ -20,6 +21,6 @@ object Version {
   val crossScala      = Seq(scala, "2.12.8")
   val geotrellis      = "3.0.0-SNAPSHOT"
   val gdal            = "2.3.3"
-  lazy val hadoop     = Environment.hadoopVersion
-  lazy val spark      = Environment.sparkVersion
+  lazy val hadoop     = Properties.envOrElse("SPARK_HADOOP_VERSION", "2.8.5")
+  lazy val spark      = Properties.envOrElse("SPARK_VERSION", "2.4.0")
 }

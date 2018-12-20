@@ -1,0 +1,5 @@
+-J-Xmx4g
+-J-Xms1g
+-J-Xss6M
+-Djava.awt.headless=true
+-Djava.library.path=/usr/local/lib
