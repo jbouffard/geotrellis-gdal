@@ -16,7 +16,6 @@
 import scala.util.Properties
 
 object Version {
-  val geotrellisGdal  = "0.14.0" + Environment.versionSuffix
   val scala           = "2.11.12"
   val crossScala      = Seq(scala, "2.12.8")
   val geotrellis      = "3.0.0-SNAPSHOT"

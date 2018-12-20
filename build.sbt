@@ -1,7 +1,6 @@
 import sbt._
 
 lazy val commonSettings = Seq(
-  version := Version.geotrellisGdal,
   scalaVersion := Version.scala,
   crossScalaVersions := Version.crossScala,
   description := "GeoTrellis GDAL Bindings",
