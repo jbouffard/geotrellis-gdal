@@ -1,11 +1,9 @@
 package geotrellis.gdal
 
+import org.gdal.gdal._
 import org.scalatest._
-import org.scalatest.BeforeAndAfterAll
-import org.gdal.gdal.{Driver, gdal}
 
 trait OnlyIfGdalInstalled extends FunSpec with BeforeAndAfterAll {
-
   def ifGdalInstalled(f: => Unit): Unit = {
     try {
       gdal.AllRegister()
@@ -23,6 +21,7 @@ trait OnlyIfGdalInstalled extends FunSpec with BeforeAndAfterAll {
   // Only run f if some GDAL JPEG2000 plugin is installed.
   def ifGdalWithJpeg2000Installed(f: => Unit): Unit = {
     ifGdalInstalled {
+
       val driversInstalled: List[Driver] = jpeg2000Drivers map { gdal.GetDriverByName }
 
       if (driversInstalled.exists(_ != null)) f
