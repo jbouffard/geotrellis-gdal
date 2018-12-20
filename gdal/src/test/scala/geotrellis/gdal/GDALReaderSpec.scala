@@ -12,7 +12,7 @@ class GDALReaderSpec extends FunSpec
   with OnlyIfGdalInstalled
 {
 
-  val path = "src/test/resources/data/slope.tif"
+  val path = "gdal/src/test/resources/data/slope.tif"
 
   describe("reading a GeoTiff") {
     ifGdalInstalled {
@@ -62,7 +62,7 @@ class GDALReaderSpec extends FunSpec
       }
 
       it("should read CRS from file") {
-        val dataset = GDAL.open("src/test/resources/data/geotiff-test-files/all-ones.tif")
+        val dataset = GDAL.open("gdal/src/test/resources/data/geotiff-test-files/all-ones.tif")
         dataset.crs should equal(Some(LatLng))
       }
     }
@@ -72,8 +72,8 @@ class GDALReaderSpec extends FunSpec
     ifGdalWithJpeg2000Installed {
       val lengthExpected = 100
       type TypeExpected = UShortCells
-      val jpeg2000Path = "src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
-      val jpegTiffPath = "src/test/resources/data/jpeg2000-test-files/jpegTiff.tif"
+      val jpeg2000Path = "gdal/src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
+      val jpegTiffPath = "gdal/src/test/resources/data/jpeg2000-test-files/jpegTiff.tif"
 
       val dataset = GDAL.open(jpeg2000Path)
       val jpegReader = GDALReader(dataset)

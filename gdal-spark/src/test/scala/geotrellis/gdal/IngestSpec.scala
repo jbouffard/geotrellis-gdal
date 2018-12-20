@@ -44,7 +44,7 @@ class IngestSpec extends FunSpec
         SpaceTimeKey(SpatialKey(0,0),TemporalKey(ZonedDateTime.parse("2006-03-16T12:00:00.000Z")))
       )
 
-      val resourcesPath = "src/test/resources"
+      val resourcesPath = "gdal/src/test/resources"
 
       it("should ingest time-band NetCDF") {
         val source = sc.netCdfRDD(new Path(resourcesPath, "ipcc-access1-tasmin.nc"))
@@ -67,7 +67,7 @@ class IngestSpec extends FunSpec
       ifGdalWithJpeg2000Installed {
         val lengthExpected = 100
         type TypeExpected = UShortCells
-        val jpeg2000Path = "src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
+        val jpeg2000Path = "gdal/src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
 
         it("should load a JPEG2000 into an RDD") {
           val tileRdd: RDD[(GdalRasterInfo, Tile)] =
