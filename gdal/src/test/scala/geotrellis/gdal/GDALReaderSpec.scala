@@ -7,11 +7,7 @@ import geotrellis.raster.io.geotiff._
 
 import org.scalatest._
 
-class GDALReaderSpec extends FunSpec
-  with RasterMatchers
-  with OnlyIfGdalInstalled
-{
-
+class GDALReaderSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
   val path = "gdal/src/test/resources/data/slope.tif"
 
   describe("reading a GeoTiff") {

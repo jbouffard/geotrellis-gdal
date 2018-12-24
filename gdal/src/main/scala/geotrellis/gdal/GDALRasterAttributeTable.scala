@@ -98,11 +98,11 @@ case class GDALRasterAttributeTable(underlying: RasterAttributeTable) extends Cl
   }
 
   def delete: Unit = AnyRef.synchronized {
-    underlying.delete
+    if(underlying != null) underlying.delete
   }
 
   override protected def finalize(): Unit = {
-    delete
+    if(underlying != null) underlying.delete
     super.finalize()
   }
 }

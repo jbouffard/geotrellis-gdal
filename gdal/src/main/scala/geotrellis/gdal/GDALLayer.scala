@@ -309,11 +309,6 @@ case class GDALLayer(underlying: Layer) {
   }
 
   def delete: Unit = AnyRef.synchronized {
-    underlying.delete
-  }
-
-  override def finalize(): Unit = {
-    delete
-    super.finalize()
+    if(underlying != null) underlying.delete
   }
 }

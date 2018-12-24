@@ -608,11 +608,6 @@ case class GDALBand(underlying: Band) extends GDALMajorObject {
   }
 
   def delete: Unit = AnyRef.synchronized {
-    underlying.delete
-  }
-
-  override protected def finalize(): Unit = {
-    delete
-    super.finalize()
+    if(underlying != null) underlying.delete
   }
 }

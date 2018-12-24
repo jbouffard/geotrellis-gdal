@@ -17,16 +17,13 @@
 package geotrellis.gdal
 
 import geotrellis.gdal.cache.LazyCache
-import geotrellis.gdal.config.GDALCacheConfig
-
+import geotrellis.gdal.config.{GDALCacheConfig, GDALOptionsConfig}
 import cats.syntax.foldable._
 import cats.syntax.option._
 import cats.instances.list._
 import cats.instances.either._
-
 import org.gdal.gdalconst.gdalconstConstants
 import com.typesafe.scalalogging.LazyLogging
-
 import java.net.URI
 
 // All of the logic in this file was taken from:
@@ -42,6 +39,9 @@ private [gdal] object GDALException {
 
 object GDAL extends LazyLogging {
   sgdal.AllRegister
+
+  // sets GDALConfig options
+  GDALOptionsConfig.set
 
   def openURI(uri: URI): GDALDataset =
     openPath(VSIPath(uri.toString).vsiPath)
