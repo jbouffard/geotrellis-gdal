@@ -22,293 +22,293 @@ import org.gdal.osr.SpatialReference
 import scala.collection.JavaConverters._
 
 case class GDALLayer(underlying: Layer) {
-  def getExtent(force: Boolean): Array[Double] = AnyRef.synchronized {
+  def getExtent(force: Boolean): Array[Double] = {
     underlying.GetExtent(force)
   }
 
-  def getExtent: Array[Double] = AnyRef.synchronized {
+  def getExtent: Array[Double] = {
     underlying.GetExtent
   }
 
-  def getRefCount: Int = AnyRef.synchronized {
+  def getRefCount: Int = {
     underlying.GetRefCount
   }
 
-  def setSpatialFilter(filter: Geometry): Unit = AnyRef.synchronized {
+  def setSpatialFilter(filter: Geometry): Unit = {
     underlying.SetSpatialFilter(filter)
   }
 
-  def setSpatialFilterRect(minx: Double, miny: Double, maxx: Double, maxy: Double): Unit = AnyRef.synchronized {
+  def setSpatialFilterRect(minx: Double, miny: Double, maxx: Double, maxy: Double): Unit = {
     underlying.SetSpatialFilterRect(minx, miny, maxx, maxy)
   }
 
-  def setSpatialFilter(iGeomField: Int, filter: Geometry): Unit = AnyRef.synchronized {
+  def setSpatialFilter(iGeomField: Int, filter: Geometry): Unit = {
     underlying.SetSpatialFilter(iGeomField, filter)
   }
 
-  def setSpatialFilterRect(iGeomField: Int, minx: Double, miny: Double, maxx: Double, maxy: Double): Unit = AnyRef.synchronized {
+  def setSpatialFilterRect(iGeomField: Int, minx: Double, miny: Double, maxx: Double, maxy: Double): Unit = {
     underlying.SetSpatialFilterRect(iGeomField, minx, miny, maxx, maxy)
   }
 
-  def getSpatialFilter: Geometry = AnyRef.synchronized {
+  def getSpatialFilter: Geometry = {
     underlying.GetSpatialFilter
   }
 
-  def setAttributeFilter(filter_string: String): Int = AnyRef.synchronized {
+  def setAttributeFilter(filter_string: String): Int = {
     underlying.SetAttributeFilter(filter_string)
   }
 
-  def resetReading(): Unit = AnyRef.synchronized {
+  def resetReading(): Unit = {
     underlying.ResetReading
   }
 
-  def getName: String = AnyRef.synchronized {
+  def getName: String = {
     underlying.GetName
   }
 
-  def getGeomType: Int = AnyRef.synchronized {
+  def getGeomType: Int = {
     underlying.GetGeomType
   }
 
-  def getGeometryColumn: String = AnyRef.synchronized {
+  def getGeometryColumn: String = {
     underlying.GetGeometryColumn
   }
 
-  def getFIDColumn: String = AnyRef.synchronized {
+  def getFIDColumn: String = {
     underlying.GetFIDColumn
   }
 
-  def getFeature(fid: Long): Feature = AnyRef.synchronized {
+  def getFeature(fid: Long): Feature = {
     underlying.GetFeature(fid)
   }
 
-  def getNextFeature: Feature = AnyRef.synchronized {
+  def getNextFeature: Feature = {
     underlying.GetNextFeature
   }
 
-  def setNextByIndex(new_index: Long): Int = AnyRef.synchronized {
+  def setNextByIndex(new_index: Long): Int = {
     underlying.SetNextByIndex(new_index)
   }
 
-  def setFeature(feature: Feature): Int = AnyRef.synchronized {
+  def setFeature(feature: Feature): Int = {
     underlying.SetFeature(feature)
   }
 
-  def createFeature(feature: Feature): Int = AnyRef.synchronized {
+  def createFeature(feature: Feature): Int = {
     underlying.CreateFeature(feature)
   }
 
-  def deleteFeature(fid: Long): Int = AnyRef.synchronized {
+  def deleteFeature(fid: Long): Int = {
     underlying.DeleteFeature(fid)
   }
 
-  def syncToDisk: Int = AnyRef.synchronized {
+  def syncToDisk: Int = {
     underlying.SyncToDisk
   }
 
-  def getLayerDefn: FeatureDefn = AnyRef.synchronized {
+  def getLayerDefn: FeatureDefn = {
     underlying.GetLayerDefn
   }
 
-  def getFeatureCount(force: Int): Long = AnyRef.synchronized {
+  def getFeatureCount(force: Int): Long = {
     underlying.GetFeatureCount(force)
   }
 
-  def getFeatureCount: Long = AnyRef.synchronized {
+  def getFeatureCount: Long = {
     underlying.GetFeatureCount
   }
 
-  def getExtent(argout: Array[Double], force: Int): Int = AnyRef.synchronized {
+  def getExtent(argout: Array[Double], force: Int): Int = {
     underlying.GetExtent(argout, force)
   }
 
-  def testCapability(cap: String): Boolean = AnyRef.synchronized {
+  def testCapability(cap: String): Boolean = {
     underlying.TestCapability(cap)
   }
 
-  def createField(field_def: FieldDefn, approx_ok: Int): Int = AnyRef.synchronized {
+  def createField(field_def: FieldDefn, approx_ok: Int): Int = {
     underlying.CreateField(field_def, approx_ok)
   }
 
-  def createField(field_def: FieldDefn): Int = AnyRef.synchronized {
+  def createField(field_def: FieldDefn): Int = {
     underlying.CreateField(field_def)
   }
 
-  def deleteField(iField: Int): Int = AnyRef.synchronized {
+  def deleteField(iField: Int): Int = {
     underlying.DeleteField(iField)
   }
 
-  def reorderField(iOldFieldPos: Int, iNewFieldPos: Int): Int = AnyRef.synchronized {
+  def reorderField(iOldFieldPos: Int, iNewFieldPos: Int): Int = {
     underlying.ReorderField(iOldFieldPos, iNewFieldPos)
   }
 
-  def reorderFields(nList: Array[Int]): Int = AnyRef.synchronized {
+  def reorderFields(nList: Array[Int]): Int = {
     underlying.ReorderFields(nList)
   }
 
-  def alterFieldDefn(iField: Int, field_def: FieldDefn, nFlags: Int): Int = AnyRef.synchronized {
+  def alterFieldDefn(iField: Int, field_def: FieldDefn, nFlags: Int): Int = {
     underlying.AlterFieldDefn(iField, field_def, nFlags)
   }
 
-  def createGeomField(field_def: GeomFieldDefn, approx_ok: Int): Int = AnyRef.synchronized {
+  def createGeomField(field_def: GeomFieldDefn, approx_ok: Int): Int = {
     underlying.CreateGeomField(field_def, approx_ok)
   }
 
-  def createGeomField(field_def: GeomFieldDefn): Int = AnyRef.synchronized {
+  def createGeomField(field_def: GeomFieldDefn): Int = {
     underlying.CreateGeomField(field_def)
   }
 
-  def startTransaction: Int = AnyRef.synchronized {
+  def startTransaction: Int = {
     underlying.StartTransaction
   }
 
-  def commitTransaction: Int = AnyRef.synchronized {
+  def commitTransaction: Int = {
     underlying.CommitTransaction
   }
 
-  def rollbackTransaction: Int = AnyRef.synchronized {
+  def rollbackTransaction: Int = {
     underlying.RollbackTransaction
   }
 
-  def findFieldIndex(pszFieldName: String, bExactMatch: Int): Int = AnyRef.synchronized {
+  def findFieldIndex(pszFieldName: String, bExactMatch: Int): Int = {
     underlying.FindFieldIndex(pszFieldName, bExactMatch)
   }
 
-  def getSpatialRef: SpatialReference = AnyRef.synchronized {
+  def getSpatialRef: SpatialReference = {
     underlying.GetSpatialRef
   }
 
-  def getFeaturesRead: Long = AnyRef.synchronized {
+  def getFeaturesRead: Long = {
     underlying.GetFeaturesRead
   }
 
-  def setIgnoredFields(options: Vector[_]): Int = AnyRef.synchronized {
+  def setIgnoredFields(options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.SetIgnoredFields(vector)
   }
 
-  def intersection(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = AnyRef.synchronized {
+  def intersection(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Intersection(method_layer.underlying, result_layer.underlying, vector, callback)
   }
 
-  def intersection(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = AnyRef.synchronized {
+  def intersection(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Intersection(method_layer.underlying, result_layer.underlying, vector)
   }
 
-  def intersection(method_layer: GDALLayer, result_layer: GDALLayer): Int = AnyRef.synchronized {
+  def intersection(method_layer: GDALLayer, result_layer: GDALLayer): Int = {
     underlying.Intersection(method_layer.underlying, result_layer.underlying)
   }
 
-  def union(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = AnyRef.synchronized {
+  def union(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Union(method_layer.underlying, result_layer.underlying, vector, callback)
   }
 
-  def union(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = AnyRef.synchronized {
+  def union(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Union(method_layer.underlying, result_layer.underlying, vector)
   }
 
-  def union(method_layer: GDALLayer, result_layer: GDALLayer): Int = AnyRef.synchronized {
+  def union(method_layer: GDALLayer, result_layer: GDALLayer): Int = {
     underlying.Union(method_layer.underlying, result_layer.underlying)
   }
 
-  def symDifference(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = AnyRef.synchronized {
+  def symDifference(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.SymDifference(method_layer.underlying, result_layer.underlying, vector, callback)
   }
 
-  def symDifference(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = AnyRef.synchronized {
+  def symDifference(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.SymDifference(method_layer.underlying, result_layer.underlying, vector)
   }
 
-  def symDifference(method_layer: GDALLayer, result_layer: GDALLayer): Int = AnyRef.synchronized {
+  def symDifference(method_layer: GDALLayer, result_layer: GDALLayer): Int = {
     underlying.SymDifference(method_layer.underlying, result_layer.underlying)
   }
 
-  def identity(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = AnyRef.synchronized {
+  def identity(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Identity(method_layer.underlying, result_layer.underlying, vector, callback)
   }
 
-  def identity(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = AnyRef.synchronized {
+  def identity(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Identity(method_layer.underlying, result_layer.underlying, vector)
   }
 
-  def identity(method_layer: GDALLayer, result_layer: GDALLayer): Int = AnyRef.synchronized {
+  def identity(method_layer: GDALLayer, result_layer: GDALLayer): Int = {
     underlying.Identity(method_layer.underlying, result_layer.underlying)
   }
 
-  def update(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = AnyRef.synchronized {
+  def update(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Update(method_layer.underlying, result_layer.underlying, vector, callback)
   }
 
-  def update(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = AnyRef.synchronized {
+  def update(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Update(method_layer.underlying, result_layer.underlying, vector)
   }
 
-  def update(method_layer: GDALLayer, result_layer: GDALLayer): Int = AnyRef.synchronized {
+  def update(method_layer: GDALLayer, result_layer: GDALLayer): Int = {
     underlying.Update(method_layer.underlying, result_layer.underlying)
   }
 
-  def clip(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = AnyRef.synchronized {
+  def clip(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Clip(method_layer.underlying, result_layer.underlying, vector, callback)
   }
 
-  def clip(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = AnyRef.synchronized {
+  def clip(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Clip(method_layer.underlying, result_layer.underlying, vector)
   }
 
-  def clip(method_layer: GDALLayer, result_layer: GDALLayer): Int = AnyRef.synchronized {
+  def clip(method_layer: GDALLayer, result_layer: GDALLayer): Int = {
     underlying.Clip(method_layer.underlying, result_layer.underlying)
   }
 
-  def erase(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = AnyRef.synchronized {
+  def erase(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_], callback: ProgressCallback): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Erase(method_layer.underlying, result_layer.underlying, vector, callback)
   }
 
-  def erase(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = AnyRef.synchronized {
+  def erase(method_layer: GDALLayer, result_layer: GDALLayer, options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
     underlying.Erase(method_layer.underlying, result_layer.underlying, vector)
   }
 
-  def erase(method_layer: GDALLayer, result_layer: GDALLayer): Int = AnyRef.synchronized {
+  def erase(method_layer: GDALLayer, result_layer: GDALLayer): Int = {
     underlying.Erase(method_layer.underlying, result_layer.underlying)
   }
 
-  def getStyleTable: GDALStyleTable = AnyRef.synchronized {
+  def getStyleTable: GDALStyleTable = {
     GDALStyleTable(underlying.GetStyleTable)
   }
 
-  def setStyleTable(table: GDALStyleTable): Unit = AnyRef.synchronized {
+  def setStyleTable(table: GDALStyleTable): Unit = {
     underlying.SetStyleTable(table.underlying)
   }
 
-  def delete: Unit = AnyRef.synchronized {
+  def delete: Unit = {
     if(underlying != null) underlying.delete
   }
 }

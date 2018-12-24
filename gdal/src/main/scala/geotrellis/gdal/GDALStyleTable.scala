@@ -19,35 +19,35 @@ package geotrellis.gdal
 import org.gdal.ogr.StyleTable
 
 case class GDALStyleTable(underlying: StyleTable) {
-  def addStyle(pszName: String, pszStyleString: String): Int = AnyRef.synchronized {
+  def addStyle(pszName: String, pszStyleString: String): Int = {
     underlying.AddStyle(pszName, pszStyleString)
   }
 
-  def loadStyleTable(utf8_path: String): Int = AnyRef.synchronized {
+  def loadStyleTable(utf8_path: String): Int = {
     underlying.LoadStyleTable(utf8_path)
   }
 
-  def saveStyleTable(utf8_path: String): Int = AnyRef.synchronized {
+  def saveStyleTable(utf8_path: String): Int = {
     underlying.SaveStyleTable(utf8_path)
   }
 
-  def find(pszName: String): String = AnyRef.synchronized {
+  def find(pszName: String): String = {
     underlying.Find(pszName)
   }
 
-  def resetStyleStringReading: Unit = AnyRef.synchronized {
+  def resetStyleStringReading: Unit = {
     underlying.ResetStyleStringReading
   }
 
-  def getNextStyle: String = AnyRef.synchronized {
+  def getNextStyle: String = {
     underlying.GetNextStyle
   }
 
-  def getLastStyleName: String = AnyRef.synchronized {
+  def getLastStyleName: String = {
     underlying.GetLastStyleName
   }
 
-  def delete: Unit = AnyRef.synchronized {
+  def delete: Unit = {
     if(underlying != null) underlying.delete
   }
 

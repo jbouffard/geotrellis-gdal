@@ -22,39 +22,39 @@ import java.awt.image.IndexColorModel
 import org.gdal.gdal.{ColorTable, gdal}
 
 case class GDALColorTable(underlying: ColorTable) extends Cloneable {
-  override def clone: GDALColorTable = AnyRef.synchronized {
+  override def clone: GDALColorTable = {
     GDALColorTable(underlying.Clone)
   }
 
-  def getIndexColorModel(bits: Int): IndexColorModel = AnyRef.synchronized {
+  def getIndexColorModel(bits: Int): IndexColorModel = {
     underlying.getIndexColorModel(bits)
   }
 
-  def getPaletteInterpretation: Int = AnyRef.synchronized {
+  def getPaletteInterpretation: Int = {
     underlying.GetPaletteInterpretation
   }
 
-  def getPaletteInterpretationName: String = AnyRef.synchronized {
+  def getPaletteInterpretationName: String = {
     gdal.GetPaletteInterpretationName(getPaletteInterpretation)
   }
 
-  def getCount: Int = AnyRef.synchronized {
+  def getCount: Int = {
     underlying.GetCount
   }
 
-  def getColorEntry(entry: Int): Color = AnyRef.synchronized {
+  def getColorEntry(entry: Int): Color = {
     underlying.GetColorEntry(entry)
   }
 
-  def setColorEntry(entry: Int, centry: Color): Unit = AnyRef.synchronized {
+  def setColorEntry(entry: Int, centry: Color): Unit = {
     underlying.SetColorEntry(entry, centry)
   }
 
-  def createColorRamp(nStartIndex: Int, startcolor: Color, nEndIndex: Int, endcolor: Color): Unit = AnyRef.synchronized {
+  def createColorRamp(nStartIndex: Int, startcolor: Color, nEndIndex: Int, endcolor: Color): Unit = {
     underlying.CreateColorRamp(nStartIndex, startcolor, nEndIndex, endcolor)
   }
 
-  def delete: Unit = AnyRef.synchronized {
+  def delete: Unit = {
     if(underlying != null) underlying.delete
   }
 
