@@ -53,7 +53,7 @@ case class GDALCacheConfig(
     if(withShutdownHook) Runtime.getRuntime.addShutdownHook(new Thread() { override def run(): Unit = GDAL.cacheCleanUp })
 }
 
-object GDALCacheConfig extends PureConfigSettings{
+object GDALCacheConfig extends PureConfigSettings {
   lazy val conf: GDALCacheConfig = pureconfig.loadConfigOrThrow[GDALCacheConfig]("gdal.cache")
   implicit def gdalCacheConfig(obj: GDALCacheConfig.type): GDALCacheConfig = conf
 }

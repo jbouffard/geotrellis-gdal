@@ -55,11 +55,11 @@ case class GDALColorTable(underlying: ColorTable) extends Cloneable {
   }
 
   def delete: Unit = AnyRef.synchronized {
-    underlying.delete
+    if(underlying != null) underlying.delete
   }
 
   override protected def finalize(): Unit = {
-    delete
+    if(underlying != null) underlying.delete
     super.finalize()
   }
 }

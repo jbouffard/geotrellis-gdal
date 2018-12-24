@@ -114,11 +114,6 @@ case class GDALDriver(underlying: Driver) extends GDALMajorObject {
   }
 
   def delete: Unit = AnyRef.synchronized {
-    underlying.delete
-  }
-
-  override def finalize(): Unit = {
-    delete
-    super.finalize()
+    if(underlying != null) underlying.delete
   }
 }

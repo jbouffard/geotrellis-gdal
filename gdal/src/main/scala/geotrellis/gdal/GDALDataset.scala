@@ -517,11 +517,11 @@ case class GDALDataset(underlying: Dataset) extends GDALMajorObject {
     }
 
   def delete: Unit = AnyRef.synchronized {
-    underlying.delete
+    if(underlying != null) underlying.delete
   }
 
   override def finalize(): Unit = {
-    delete
+    if(underlying != null) underlying.delete
     super.finalize()
   }
 }
