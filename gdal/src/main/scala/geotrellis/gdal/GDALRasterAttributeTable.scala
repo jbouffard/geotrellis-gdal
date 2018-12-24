@@ -21,83 +21,83 @@ import org.gdal.gdal.RasterAttributeTable
 case class GDALRasterAttributeTable(underlying: RasterAttributeTable) extends Cloneable {
   override def clone: GDALRasterAttributeTable = GDALRasterAttributeTable(underlying.Clone)
 
-  def getColumnCount: Int = AnyRef.synchronized {
+  def getColumnCount: Int = {
     underlying.GetColumnCount
   }
 
-  def getNameOfCol(iCol: Int): String = AnyRef.synchronized {
+  def getNameOfCol(iCol: Int): String = {
     underlying.GetNameOfCol(iCol)
   }
 
-  def getUsageOfCol(iCol: Int): Int = AnyRef.synchronized {
+  def getUsageOfCol(iCol: Int): Int = {
     underlying.GetUsageOfCol(iCol)
   }
 
-  def getTypeOfCol(iCol: Int): Int = AnyRef.synchronized {
+  def getTypeOfCol(iCol: Int): Int = {
     underlying.GetTypeOfCol(iCol)
   }
 
-  def getColOfUsage(eUsage: Int): Int = AnyRef.synchronized {
+  def getColOfUsage(eUsage: Int): Int = {
     underlying.GetColOfUsage(eUsage)
   }
 
-  def getRowCount: Int = AnyRef.synchronized {
+  def getRowCount: Int = {
     underlying.GetRowCount
   }
 
-  def getValueAsString(iRow: Int, iCol: Int): String = AnyRef.synchronized {
+  def getValueAsString(iRow: Int, iCol: Int): String = {
     underlying.GetValueAsString(iRow, iCol)
   }
 
-  def getValueAsInt(iRow: Int, iCol: Int): Int = AnyRef.synchronized {
+  def getValueAsInt(iRow: Int, iCol: Int): Int = {
     underlying.GetValueAsInt(iRow, iCol)
   }
 
-  def getValueAsDouble(iRow: Int, iCol: Int): Double = AnyRef.synchronized {
+  def getValueAsDouble(iRow: Int, iCol: Int): Double = {
     underlying.GetValueAsDouble(iRow, iCol)
   }
 
-  def setValueAsString(iRow: Int, iCol: Int, pszValue: String): Unit = AnyRef.synchronized {
+  def setValueAsString(iRow: Int, iCol: Int, pszValue: String): Unit = {
     underlying.SetValueAsString(iRow, iCol, pszValue)
   }
 
-  def setValueAsInt(iRow: Int, iCol: Int, nValue: Int): Unit = AnyRef.synchronized {
+  def setValueAsInt(iRow: Int, iCol: Int, nValue: Int): Unit = {
     underlying.SetValueAsInt(iRow, iCol, nValue)
   }
 
-  def setValueAsDouble(iRow: Int, iCol: Int, dfValue: Double): Unit = AnyRef.synchronized {
+  def setValueAsDouble(iRow: Int, iCol: Int, dfValue: Double): Unit = {
     underlying.SetValueAsDouble(iRow, iCol, dfValue)
   }
 
-  def setRowCount(nCount: Int): Unit = AnyRef.synchronized {
+  def setRowCount(nCount: Int): Unit = {
     underlying.SetRowCount(nCount)
   }
 
-  def createColumn(pszName: String, eType: Int, eUsage: Int): Int = AnyRef.synchronized {
+  def createColumn(pszName: String, eType: Int, eUsage: Int): Int = {
     underlying.CreateColumn(pszName, eType, eUsage)
   }
 
-  def getLinearBinning(pdfRow0Min: Array[Double], pdfBinSize: Array[Double]): Boolean = AnyRef.synchronized {
+  def getLinearBinning(pdfRow0Min: Array[Double], pdfBinSize: Array[Double]): Boolean = {
     underlying.GetLinearBinning(pdfRow0Min, pdfBinSize)
   }
 
-  def setLinearBinning(dfRow0Min: Double, dfBinSize: Double): Int = AnyRef.synchronized {
+  def setLinearBinning(dfRow0Min: Double, dfBinSize: Double): Int = {
     underlying.SetLinearBinning(dfRow0Min, dfBinSize)
   }
 
-  def getRowOfValue(dfValue: Double): Int = AnyRef.synchronized {
+  def getRowOfValue(dfValue: Double): Int = {
     underlying.GetRowOfValue(dfValue)
   }
 
-  def changesAreWrittenToFile: Int = AnyRef.synchronized {
+  def changesAreWrittenToFile: Int = {
     underlying.ChangesAreWrittenToFile
   }
 
-  def dumpReadable: Unit = AnyRef.synchronized {
+  def dumpReadable: Unit = {
     underlying.DumpReadable
   }
 
-  def delete: Unit = AnyRef.synchronized {
+  def delete: Unit = {
     if(underlying != null) underlying.delete
   }
 
