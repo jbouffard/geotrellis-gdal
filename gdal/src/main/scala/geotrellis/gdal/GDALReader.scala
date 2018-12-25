@@ -17,14 +17,15 @@
 package geotrellis.gdal
 
 import geotrellis.raster._
+import geotrellis.vector.Extent
+
 import spire.syntax.cfor._
 import org.gdal.gdal.{Dataset, gdal}
 import org.gdal.gdalconst.gdalconstConstants
+
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.net.URI
-
-import geotrellis.vector.Extent
 
 class GDALReader(val dataset: GDALDataset) {
   protected val bandCount: Int = dataset.getRasterCount

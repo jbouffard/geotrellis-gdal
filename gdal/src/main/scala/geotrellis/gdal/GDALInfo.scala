@@ -16,9 +16,9 @@
 
 package geotrellis.gdal
 
-import java.awt.Color
+import geotrellis.gdal.osr.{OSRCoordinateTransformation, OSRSpatialReference}
 
-import org.gdal.osr.{CoordinateTransformation, SpatialReference}
+import java.awt.Color
 
 object GDALInfo {
   def main(args:Array[String]): Unit =
@@ -50,16 +50,16 @@ object GDALInfo {
 
     raster.getProjectionRef match {
       case Some(projection) =>
-        val srs = new SpatialReference(projection)
+        val srs = OSRSpatialReference(projection)
         if(srs != null && projection.length != 0) {
           val arr = Array.ofDim[String](1)
-          srs.ExportToPrettyWkt(arr)
+          srs.exportToPrettyWkt(arr)
           println("Coordinate System is:")
           println(arr(0))
         } else {
           println(s"Coordinate Sytem is ${projection}")
         }
-        if(srs != null) { srs.delete() }
+        if(srs != null) { srs.delete }
       case None =>
     }
 
@@ -181,14 +181,13 @@ object GDALInfo {
 
       dataset.getProjectionRef match {
         case Some(projection) =>
-          val srs = new SpatialReference(projection)
+          val srs = OSRSpatialReference(projection)
           if (srs != null && projection.length != 0) {
-            val latLong = srs.CloneGeogCS()
+            val latLong = srs.cloneGeogCS
             if (latLong != null) {
-              val transform = CoordinateTransformation
-                .CreateCoordinateTransformation(srs, latLong)
+              val transform = OSRCoordinateTransformation.createCoordinateTransformation(srs, latLong)
               if (transform != null) {
-                val point = transform.TransformPoint(geox, geoy, 0)
+                val point = transform.transformPoint(geox, geoy, 0)
                 val xtrans = sgdal.decToDMS(point(0), "Long", 2)
                 val ytrans = sgdal.decToDMS(point(1), "Lat", 2)
                 println(s"($xtrans,$ytrans)")
@@ -197,7 +196,7 @@ object GDALInfo {
             }
           }
           if (srs != null) {
-            srs.delete()
+            srs.delete
           }
         case None => println()
       }
