@@ -25,7 +25,17 @@ import java.nio.ByteBuffer
 
 import scala.collection.JavaConverters._
 
+/** Also keeps references to all base datasets to prevent the wrong GC ordering */
 case class GDALDataset(underlying: Dataset) extends GDALMajorObject {
+  private var parentReferences: Array[String] = Array()
+
+  def getParentReferences: Array[String] = parentReferences
+
+  def setParentReferences(refs: Array[String]): GDALDataset = {
+    parentReferences = refs
+    this
+  }
+
   def buildOverviews(overviewlist: Array[Int], callback: ProgressCallback): Int = {
     underlying.BuildOverviews(null, overviewlist, callback)
   }
@@ -75,15 +85,18 @@ case class GDALDataset(underlying: Dataset) extends GDALMajorObject {
   def getRasterBands(seq: Seq[Int] = 1 to getRasterCount): List[GDALBand] =
     seq.map(getRasterBand).toList
 
-  def getProjection: Option[String] = {
+  /** https://lists.osgeo.org/pipermail/gdal-dev/2007-November/014795.html */
+  def getProjection: Option[String] = AnyRef.synchronized {
     Option(underlying.GetProjection).filter(_.nonEmpty)
   }
 
-  def getProjectionRef: Option[String] = {
+  /** https://lists.osgeo.org/pipermail/gdal-dev/2007-November/014795.html */
+  def getProjectionRef: Option[String] = AnyRef.synchronized {
     Option(underlying.GetProjectionRef).filter(_.nonEmpty)
   }
 
-  def setProjection(prj: String): Int = {
+  /** https://lists.osgeo.org/pipermail/gdal-dev/2007-November/014795.html */
+  def setProjection(prj: String): Int = AnyRef.synchronized {
     underlying.SetProjection(prj)
   }
 
@@ -103,7 +116,8 @@ case class GDALDataset(underlying: Dataset) extends GDALMajorObject {
     underlying.GetGCPCount
   }
 
-  def getGCPProjection: String = {
+  /** https://lists.osgeo.org/pipermail/gdal-dev/2007-November/014795.html */
+  def getGCPProjection: String = AnyRef.synchronized {
     underlying.GetGCPProjection
   }
 

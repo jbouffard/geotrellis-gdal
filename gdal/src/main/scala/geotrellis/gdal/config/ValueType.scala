@@ -20,8 +20,20 @@ import cats.syntax.either._
 import pureconfig.error.ConfigReaderFailures
 import pureconfig.{ConfigCursor, ConfigReader}
 
-sealed trait ValueType {
+sealed trait ValueType { self =>
   lazy val name = s"${this.getClass.getName.split("\\$").last.split("\\.").last}"
+  def isWeak: Boolean = self match {
+    case Weak => true
+    case _ => false
+  }
+  def isHard: Boolean = self match {
+    case Hard => true
+    case _ => false
+  }
+  def isSoft: Boolean = self match {
+    case Soft => true
+    case _ => false
+  }
   override def toString = name
 }
 
