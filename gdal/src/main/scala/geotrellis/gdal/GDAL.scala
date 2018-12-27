@@ -83,7 +83,7 @@ object GDAL extends LazyLogging {
       val parentKey = s"${parentWarpOptions.name}${ds.getDescription.getOrElse("")}".base64
       val nds = ds.setSelfReference(parentKey).setChildReference(key)
       cacheOrdering.get(parentKey, _ => nds)
-      (parentKey, nds)
+      parentKey
     }
     lazy val getDS = sgdal.warp(dest, baseDatasets, warpOptions.toWarpOptions).setParentReferences(parents)
     val ds = cache.get(key.base64, _ => getDS)

@@ -29,11 +29,11 @@ import scala.collection.JavaConverters._
 case class GDALDataset(underlying: Dataset) extends GDALMajorObject {
   private var selfRef: GDALDataset = this
 
-  private var parentReferences: Array[(String, GDALDataset)] = Array()
+  private var parentReferences: Array[String] = Array()
 
-  def getParentReferences: Array[(String, GDALDataset)] = parentReferences
+  def getParentReferences: Array[String] = parentReferences
 
-  def setParentReferences(refs: Array[(String, GDALDataset)]): GDALDataset = AnyRef.synchronized {
+  def setParentReferences(refs: Array[String]): GDALDataset = AnyRef.synchronized {
     parentReferences = refs
     this
   }
@@ -496,7 +496,7 @@ case class GDALDataset(underlying: Dataset) extends GDALMajorObject {
   // TODO: review this approach
   // it looks like it never gets into the children nonEmpty clause
   override def finalize(): Unit = {
-    println(s"underlying != null: ${underlying != null}")
+    // println(s"underlying != null: ${underlying != null}")
     if (underlying != null) {
       if(getChildReference.isEmpty) {
         underlying.delete
