@@ -16,19 +16,15 @@
 
 package geotrellis
 
-import java.util.Base64
-
+import geotrellis.gdal.osr._
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellSize, GridBounds, RasterExtent}
 import geotrellis.util.MethodExtensions
 import geotrellis.vector.Extent
-import org.gdal.osr.SpatialReference
+
+import java.util.Base64
 
 package object gdal extends Serializable {
-  implicit class SpatialReferenceMethods(val sr: SpatialReference) extends AnyVal {
-    def toCRS: CRS = CRS.fromString(sr.ExportToProj4)
-  }
-
   implicit class StringMethods(val str: String) extends AnyVal {
     def base64: String = Base64.getEncoder.encodeToString(str.getBytes)
   }
@@ -73,9 +69,6 @@ package object gdal extends Serializable {
 
     lazy val cellSize: CellSize = CellSize(geoTransform(1), math.abs(geoTransform(5)))
 
-    def crs: Option[CRS] = self.getProjectionRef map { projection =>
-      val srs = new SpatialReference(projection)
-      CRS.fromString(srs.ExportToProj4())
-    }
+    def crs: Option[CRS] = self.getProjectionRef map { OSRSpatialReference(_).toCRS }
   }
 }

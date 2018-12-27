@@ -16,8 +16,9 @@
 
 package geotrellis.gdal
 
+import geotrellis.gdal.osr.OSRSpatialReference
+
 import org.gdal.ogr._
-import org.gdal.osr.SpatialReference
 
 import scala.collection.JavaConverters._
 
@@ -174,8 +175,8 @@ case class GDALLayer(underlying: Layer) {
     underlying.FindFieldIndex(pszFieldName, bExactMatch)
   }
 
-  def getSpatialRef: SpatialReference = {
-    underlying.GetSpatialRef
+  def getSpatialRef: OSRSpatialReference = {
+    OSRSpatialReference(underlying.GetSpatialRef)
   }
 
   def getFeaturesRead: Long = {

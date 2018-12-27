@@ -50,10 +50,9 @@ case class GDALBand(underlying: Band) extends GDALMajorObject {
     underlying.GetStatistics(approx_ok, force, min, max, mean, stddev)
   }
 
-  def readRaster_Direct(xoff: Int, yoff: Int, xsize: Int, ysize: Int, buf_xsize: Int, buf_ysize: Int, nioBuffer: ByteBuffer): Int =
-     {
-      underlying.ReadRaster_Direct(xoff, yoff, xsize, ysize, buf_xsize, buf_ysize, nioBuffer)
-    }
+  def readRaster_Direct(xoff: Int, yoff: Int, xsize: Int, ysize: Int, buf_xsize: Int, buf_ysize: Int, nioBuffer: ByteBuffer): Int = {
+    underlying.ReadRaster_Direct(xoff, yoff, xsize, ysize, buf_xsize, buf_ysize, nioBuffer)
+  }
 
   def readRaster_Direct(xoff: Int, yoff: Int, xsize: Int, ysize: Int, nioBuffer: ByteBuffer): Int = {
     underlying.ReadRaster_Direct(xoff, yoff, xsize, ysize, nioBuffer)
@@ -314,28 +313,28 @@ case class GDALBand(underlying: Band) extends GDALMajorObject {
   def computeRasterMinMax(approx_ok: Int): Option[(Double, Double)] = {
     val arr = Array.ofDim[Double](2)
     underlying.ComputeRasterMinMax(arr, approx_ok)
-    if(arr.length == 2) Some(arr(0) -> arr(1))
+    if (arr.length == 2) Some(arr(0) -> arr(1))
     else None
   }
 
   def computeRasterMinMax: Option[(Double, Double)] = {
     val arr = Array.ofDim[Double](2)
     underlying.ComputeRasterMinMax(arr)
-    if(arr.length == 2) Some(arr(0) -> arr(1))
+    if (arr.length == 2) Some(arr(0) -> arr(1))
     else None
   }
 
   def computeBandStats(samplestep: Int): Option[(Double, Double)] = {
     val arr = Array.ofDim[Double](2)
     underlying.ComputeBandStats(arr, samplestep)
-    if(arr.length == 2) Some(arr(0) -> arr(1))
+    if (arr.length == 2) Some(arr(0) -> arr(1))
     else None
   }
 
   def computeBandStats: Option[(Double, Double)] = {
     val arr = Array.ofDim[Double](2)
     underlying.ComputeBandStats(arr)
-    if(arr.length == 2) Some(arr(0) -> arr(1))
+    if (arr.length == 2) Some(arr(0) -> arr(1))
     else None
   }
 
@@ -500,15 +499,15 @@ case class GDALBand(underlying: Band) extends GDALMajorObject {
   }
 
   def writeRaster_Direct(xoff: Int, yoff: Int, xsize: Int, ysize: Int, buf_xsize: Int, buf_ysize: Int, buf_type: Int, nioBuffer: ByteBuffer, nPixelSpace: Int, nLineSpace: Int): Int = {
-    underlying.WriteRaster_Direct(xoff,yoff, xsize, ysize, buf_xsize, buf_ysize, buf_type, nioBuffer, nPixelSpace, nLineSpace)
+    underlying.WriteRaster_Direct(xoff, yoff, xsize, ysize, buf_xsize, buf_ysize, buf_type, nioBuffer, nPixelSpace, nLineSpace)
   }
 
   def writeRaster_Direct(xoff: Int, yoff: Int, xsize: Int, ysize: Int, buf_xsize: Int, buf_ysize: Int, buf_type: Int, nioBuffer: ByteBuffer, nPixelSpace: Int): Int = {
-    underlying.WriteRaster_Direct(xoff,yoff, xsize, ysize, buf_xsize, buf_ysize, buf_type, nioBuffer, nPixelSpace)
+    underlying.WriteRaster_Direct(xoff, yoff, xsize, ysize, buf_xsize, buf_ysize, buf_type, nioBuffer, nPixelSpace)
   }
 
   def writeRaster_Direct(xoff: Int, yoff: Int, xsize: Int, ysize: Int, buf_xsize: Int, buf_ysize: Int, buf_type: Int, nioBuffer: ByteBuffer): Int = {
-    underlying.WriteRaster_Direct(xoff,yoff, xsize, ysize, buf_xsize, buf_ysize, buf_type, nioBuffer)
+    underlying.WriteRaster_Direct(xoff, yoff, xsize, ysize, buf_xsize, buf_ysize, buf_type, nioBuffer)
   }
 
   def writeRaster(xoff: Int, yoff: Int, xsize: Int, ysize: Int, buf_xsize: Int, buf_ysize: Int, buf_type: Int, regularArrayIn: Array[Byte], nPixelSpace: Int, nLineSpace: Int): Int = {
@@ -608,6 +607,6 @@ case class GDALBand(underlying: Band) extends GDALMajorObject {
   }
 
   def delete: Unit = {
-    if(underlying != null) underlying.delete
+    if (underlying != null) underlying.delete
   }
 }

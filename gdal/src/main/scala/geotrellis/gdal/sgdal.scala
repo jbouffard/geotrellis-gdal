@@ -424,17 +424,17 @@ object sgdal {
   def sieveFilter(srcBand: GDALBand, maskBand: GDALBand, dstBand: GDALBand, threshold: Int, connectedness: Int, options: Vector[_], callback: ProgressCallback): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
-    gdal.SieveFilter(srcBand.underlying, maskBand.underlying, dstBand.underlying, threshold,connectedness, vector, callback)
+    gdal.SieveFilter(srcBand.underlying, maskBand.underlying, dstBand.underlying, threshold, connectedness, vector, callback)
   }
 
   def sieveFilter(srcBand: GDALBand, maskBand: GDALBand, dstBand: GDALBand, threshold: Int, connectedness: Int, options: Vector[_]): Int = {
     val vector = new java.util.Vector[Any]()
     vector.addAll(options.asJavaCollection)
-    gdal.SieveFilter(srcBand.underlying, maskBand.underlying, dstBand.underlying, threshold,connectedness, vector)
+    gdal.SieveFilter(srcBand.underlying, maskBand.underlying, dstBand.underlying, threshold, connectedness, vector)
   }
 
   def sieveFilter(srcBand: GDALBand, maskBand: GDALBand, dstBand: GDALBand, threshold: Int, connectedness: Int): Int = {
-    gdal.SieveFilter(srcBand.underlying, maskBand.underlying, dstBand.underlying, threshold,connectedness)
+    gdal.SieveFilter(srcBand.underlying, maskBand.underlying, dstBand.underlying, threshold, connectedness)
   }
 
   def sieveFilter(srcBand: GDALBand, maskBand: GDALBand, dstBand: GDALBand, threshold: Int): Int = {
@@ -488,7 +488,7 @@ object sgdal {
   def autoCreateWarpedVRT(src_ds: GDALDataset, src_wkt: String, dst_wkt: String, eResampleAlg: Int): GDALDataset = {
     GDALDataset(gdal.AutoCreateWarpedVRT(src_ds.underlying, src_wkt, dst_wkt, eResampleAlg))
   }
-  
+
   def autoCreateWarpedVRT(src_ds: GDALDataset, src_wkt: String, dst_wkt: String): GDALDataset = {
     GDALDataset(gdal.AutoCreateWarpedVRT(src_ds.underlying, src_wkt, dst_wkt))
   }
@@ -633,15 +633,15 @@ object sgdal {
     GDALDriver(gdal.GetDriver(i))
   }
 
-  def open(utf8_path: String, eAccess: Int): GDALDataset = {
+  def open(utf8_path: String, eAccess: Int): GDALDataset = AnyRef.synchronized {
     GDALDataset(gdal.Open(utf8_path, eAccess))
   }
 
-  def open(name: String): GDALDataset = {
+  def open(name: String): GDALDataset = AnyRef.synchronized {
     GDALDataset(gdal.Open(name))
   }
 
-  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_], open_options: Vector[_], sibling_files: Vector[_]): GDALDataset = {
+  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_], open_options: Vector[_], sibling_files: Vector[_]): GDALDataset = AnyRef.synchronized {
     val ad = new java.util.Vector[Any]()
     ad.addAll(allowed_drivers.asJavaCollection)
 
@@ -654,7 +654,7 @@ object sgdal {
     GDALDataset(gdal.OpenEx(utf8_path, nOpenFlags, ad, oo, sf))
   }
 
-  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_], open_options: Vector[_]): GDALDataset = {
+  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_], open_options: Vector[_]): GDALDataset = AnyRef.synchronized {
     val ad = new java.util.Vector[Any]()
     ad.addAll(allowed_drivers.asJavaCollection)
 
@@ -664,18 +664,18 @@ object sgdal {
     GDALDataset(gdal.OpenEx(utf8_path, nOpenFlags, ad, oo))
   }
 
-  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_]): GDALDataset = {
+  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_]): GDALDataset = AnyRef.synchronized {
     val ad = new java.util.Vector[Any]()
     ad.addAll(allowed_drivers.asJavaCollection)
 
     GDALDataset(gdal.OpenEx(utf8_path, nOpenFlags, ad))
   }
 
-  def openEx(utf8_path: String, nOpenFlags: Long): GDALDataset = {
+  def openEx(utf8_path: String, nOpenFlags: Long): GDALDataset = AnyRef.synchronized {
     GDALDataset(gdal.OpenEx(utf8_path, nOpenFlags))
   }
 
-  def openEx(utf8_path: String): GDALDataset = {
+  def openEx(utf8_path: String): GDALDataset = AnyRef.synchronized {
     GDALDataset(gdal.OpenEx(utf8_path))
   }
 
@@ -741,15 +741,15 @@ object sgdal {
     gdal.GDALInfo(hDataset.underlying, infoOptions)
   }
 
-  def translate(dest: String, dataset: GDALDataset, translateOptions: TranslateOptions, callback: ProgressCallback): GDALDataset = {
+  def translate(dest: String, dataset: GDALDataset, translateOptions: TranslateOptions, callback: ProgressCallback): GDALDataset = AnyRef.synchronized {
     GDALDataset(gdal.Translate(dest, dataset.underlying, translateOptions, callback))
   }
 
-  def translate(dest: String, dataset: GDALDataset, translateOptions: TranslateOptions): GDALDataset = {
+  def translate(dest: String, dataset: GDALDataset, translateOptions: TranslateOptions): GDALDataset = AnyRef.synchronized {
     GDALDataset(gdal.Translate(dest, dataset.underlying, translateOptions))
   }
 
-  def warp(dstDS: GDALDataset, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions, callback: ProgressCallback): Int = {
+  def warp(dstDS: GDALDataset, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions, callback: ProgressCallback): Int = AnyRef.synchronized {
     gdal.Warp(dstDS.underlying, object_list_count.map(_.underlying), warpAppOptions, callback)
   }
 
@@ -757,11 +757,11 @@ object sgdal {
     gdal.Warp(dstDS.underlying, object_list_count.map(_.underlying), warpAppOptions)
   }
 
-  def warp(dest: String, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions, callback: ProgressCallback): GDALDataset = {
+  def warp(dest: String, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions, callback: ProgressCallback): GDALDataset = AnyRef.synchronized {
     GDALDataset(gdal.Warp(dest, object_list_count.map(_.underlying), warpAppOptions, callback))
   }
 
-  def warp(dest: String, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions): GDALDataset = {
+  def warp(dest: String, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions): GDALDataset = AnyRef.synchronized {
     GDALDataset(gdal.Warp(dest, object_list_count.map(_.underlying), warpAppOptions))
   }
 
