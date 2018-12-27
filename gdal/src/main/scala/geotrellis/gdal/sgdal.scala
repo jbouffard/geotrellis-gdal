@@ -633,15 +633,15 @@ object sgdal {
     GDALDriver(gdal.GetDriver(i))
   }
 
-  def open(utf8_path: String, eAccess: Int): GDALDataset = AnyRef.synchronized {
+  def open(utf8_path: String, eAccess: Int): GDALDataset = {
     GDALDataset(gdal.Open(utf8_path, eAccess))
   }
 
-  def open(name: String): GDALDataset = AnyRef.synchronized {
+  def open(name: String): GDALDataset = {
     GDALDataset(gdal.Open(name))
   }
 
-  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_], open_options: Vector[_], sibling_files: Vector[_]): GDALDataset = AnyRef.synchronized {
+  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_], open_options: Vector[_], sibling_files: Vector[_]): GDALDataset = {
     val ad = new java.util.Vector[Any]()
     ad.addAll(allowed_drivers.asJavaCollection)
 
@@ -654,7 +654,7 @@ object sgdal {
     GDALDataset(gdal.OpenEx(utf8_path, nOpenFlags, ad, oo, sf))
   }
 
-  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_], open_options: Vector[_]): GDALDataset = AnyRef.synchronized {
+  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_], open_options: Vector[_]): GDALDataset = {
     val ad = new java.util.Vector[Any]()
     ad.addAll(allowed_drivers.asJavaCollection)
 
@@ -664,18 +664,18 @@ object sgdal {
     GDALDataset(gdal.OpenEx(utf8_path, nOpenFlags, ad, oo))
   }
 
-  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_]): GDALDataset = AnyRef.synchronized {
+  def openEx(utf8_path: String, nOpenFlags: Long, allowed_drivers: Vector[_]): GDALDataset = {
     val ad = new java.util.Vector[Any]()
     ad.addAll(allowed_drivers.asJavaCollection)
 
     GDALDataset(gdal.OpenEx(utf8_path, nOpenFlags, ad))
   }
 
-  def openEx(utf8_path: String, nOpenFlags: Long): GDALDataset = AnyRef.synchronized {
+  def openEx(utf8_path: String, nOpenFlags: Long): GDALDataset = {
     GDALDataset(gdal.OpenEx(utf8_path, nOpenFlags))
   }
 
-  def openEx(utf8_path: String): GDALDataset = AnyRef.synchronized {
+  def openEx(utf8_path: String): GDALDataset = {
     GDALDataset(gdal.OpenEx(utf8_path))
   }
 

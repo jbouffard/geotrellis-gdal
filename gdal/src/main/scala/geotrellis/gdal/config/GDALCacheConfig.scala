@@ -53,7 +53,7 @@ case class GDALCacheConfig(
                   // if it's a cache on weak refs, lets remove all parents from the cache on hard refs
                   if (valuesType.isWeak) {
                     val parents = dataset.getParentReferences
-                    if (parents != null) parents.foreach { case (k, _) => GDAL.cacheOrdering.invalidate(k) }
+                    if (parents != null) parents.foreach(GDAL.cacheOrdering.invalidate)
                   }
                   dataset.delete
                 }/* else {

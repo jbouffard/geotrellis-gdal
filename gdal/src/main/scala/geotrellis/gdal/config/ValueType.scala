@@ -21,7 +21,7 @@ import pureconfig.error.ConfigReaderFailures
 import pureconfig.{ConfigCursor, ConfigReader}
 
 sealed trait ValueType { self =>
-  lazy val name = s"${this.getClass.getName.split("\\$").last.split("\\.").last}"
+  lazy val name = s"${this.getClass.getName.split("\\$").last.split("\\.").last.toLowerCase}"
   def isWeak: Boolean = self match {
     case Weak => true
     case _ => false
@@ -43,7 +43,7 @@ case object Weak extends ValueType
 
 object ValueType extends PureConfigSettings {
   def fromName(name: String): ValueType = {
-    name match {
+    name.toLowerCase match {
       case Soft.name => Soft
       case Hard.name => Hard
       case _         => Weak

@@ -12,7 +12,7 @@ case class OSRCoordinateTransformation(underlying: CoordinateTransformation) {
     if(underlying != null) underlying.delete
   }
 
-  def transformPoint(x: Double, y: Double, z: Double): Array[Double] =AnyRef.synchronized {
+  def transformPoint(x: Double, y: Double, z: Double): Array[Double] = AnyRef.synchronized {
     underlying.TransformPoint(x, y, z)
   }
 
