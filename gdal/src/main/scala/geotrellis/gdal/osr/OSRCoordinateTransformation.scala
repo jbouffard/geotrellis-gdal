@@ -2,6 +2,11 @@ package geotrellis.gdal.osr
 
 import org.gdal.osr.{CoordinateTransformation, SpatialReference, osr}
 
+/**
+  * Original OSR objects can't be used in a multithreaded environment
+  *
+  * http://osgeo-org.1560.x6.nabble.com/gdal-dev-Possible-concurrency-issue-in-OGRCoordinateTransformation-td5285641.html
+  */
 case class OSRCoordinateTransformation(underlying: CoordinateTransformation) {
   override protected def finalize(): Unit = {
     if(underlying != null) AnyRef.synchronized(underlying.delete)
