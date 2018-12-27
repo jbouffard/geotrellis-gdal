@@ -18,12 +18,15 @@ package geotrellis.gdal
 
 import geotrellis.gdal.cache.LazyCache
 import geotrellis.gdal.config.{GDALCacheConfig, GDALOptionsConfig}
+
 import cats.syntax.foldable._
 import cats.syntax.option._
 import cats.instances.list._
 import cats.instances.either._
+
 import org.gdal.gdalconst.gdalconstConstants
 import com.typesafe.scalalogging.LazyLogging
+
 import java.net.URI
 
 // All of the logic in this file was taken from:
@@ -54,8 +57,14 @@ object GDAL extends LazyLogging {
 
   @transient lazy val cache: LazyCache[String, GDALDataset] = GDALCacheConfig.getCache
 
+  /** OrderingCache, required to keep GC ordering of WeakReferences stored in the cache above */
+  @transient lazy val cacheOrdering: LazyCache[String, GDALDataset] = GDALCacheConfig.getWeakOrderingCache
+
   /** We may want to force invalidate caches, in case we don't trust GC too much */
-  def cacheCleanUp: Unit = cache.invalidateAll()
+  def cacheCleanUp: Unit = {
+    cacheOrdering.invalidateAll()
+    cache.invalidateAll()
+  }
 
   def openPath(path: String): GDALDataset = {
     lazy val getDS = sgdal.open(path, gdalconstConstants.GA_ReadOnly)
@@ -66,9 +75,17 @@ object GDAL extends LazyLogging {
 
   // parentWarpOptions is a tuple of a path to the initial dataset and a list of previous transformations
   // it is required to calculate a proper cache key
-  def warp(dest: String, baseDatasets: Array[GDALDataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): GDALDataset = {
-    lazy val getDS = sgdal.warp(dest, baseDatasets, warpOptions.toWarpOptions)
+  private def warp(dest: String, baseDatasets: Array[GDALDataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): GDALDataset = {
+    // current warp key
     val key = s"${parentWarpOptions.name}${warpOptions.name}".base64
+    // put parent into the strong cache
+    val parents = baseDatasets.map { ds =>
+      val parentKey = s"${parentWarpOptions.name}${ds.getDescription.getOrElse("")}".base64
+      val nds = ds.setSelfReference(parentKey).setChildReference(key)
+      cacheOrdering.get(parentKey, _ => nds)
+      (parentKey, nds)
+    }
+    lazy val getDS = sgdal.warp(dest, baseDatasets, warpOptions.toWarpOptions).setParentReferences(parents)
     val ds = cache.get(key.base64, _ => getDS)
     if(ds == null) throw GDALException.lastError()
     ds
