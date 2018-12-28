@@ -57,14 +57,8 @@ object GDAL extends LazyLogging {
 
   @transient lazy val cache: LazyCache[String, GDALDataset] = GDALCacheConfig.getCache
 
-  /** OrderingCache, required to keep GC ordering of WeakReferences stored in the cache above */
-  @transient lazy val cacheOrdering: LazyCache[String, GDALDataset] = GDALCacheConfig.getWeakOrderingCache
-
   /** We may want to force invalidate caches, in case we don't trust GC too much */
-  def cacheCleanUp: Unit = {
-    cacheOrdering.invalidateAll()
-    cache.invalidateAll()
-  }
+  def cacheCleanUp: Unit = cache.invalidateAll()
 
   def openPath(path: String): GDALDataset = {
     lazy val getDS = sgdal.open(path, gdalconstConstants.GA_ReadOnly)
@@ -79,13 +73,7 @@ object GDAL extends LazyLogging {
     // current warp key
     val key = s"${parentWarpOptions.name}${warpOptions.name}".base64
     // put parent into the strong cache
-    val parents = baseDatasets.map { ds =>
-      val parentKey = s"${parentWarpOptions.name}${ds.getDescription.getOrElse("")}".base64
-      val nds = ds.setSelfReference(parentKey).setChildReference(key)
-      cacheOrdering.get(parentKey, _ => nds)
-      parentKey
-    }
-    lazy val getDS = sgdal.warp(dest, baseDatasets, warpOptions.toWarpOptions).setParentReferences(parents)
+    lazy val getDS = sgdal.warp(dest, baseDatasets, warpOptions.toWarpOptions)
     val ds = cache.get(key.base64, _ => getDS)
     if(ds == null) throw GDALException.lastError()
     ds

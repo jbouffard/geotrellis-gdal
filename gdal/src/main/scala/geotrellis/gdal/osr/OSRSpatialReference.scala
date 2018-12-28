@@ -16,6 +16,7 @@
 
 package geotrellis.gdal.osr
 
+import geotrellis.proj4.CRS
 import org.gdal.osr.SpatialReference
 
 import scala.collection.JavaConverters._
@@ -648,6 +649,8 @@ case class OSRSpatialReference(underlying: SpatialReference) extends Cloneable {
   def convertToOtherProjection(other_projection: String): OSRSpatialReference = AnyRef.synchronized {
     OSRSpatialReference(underlying.ConvertToOtherProjection(other_projection))
   }
+
+  def toCRS: CRS = CRS.fromString(exportToProj4)
 }
 
 object OSRSpatialReference {

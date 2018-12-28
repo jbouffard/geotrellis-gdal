@@ -26,38 +26,7 @@ import java.nio.ByteBuffer
 import scala.collection.JavaConverters._
 
 /** Also keeps references to all base datasets to prevent the wrong GC ordering */
-case class GDALDataset(underlying: Dataset) extends GDALMajorObject {
-  private var selfRef: GDALDataset = this
-
-  private var parentReferences: Array[String] = Array()
-
-  def getParentReferences: Array[String] = parentReferences
-
-  def setParentReferences(refs: Array[String]): GDALDataset = AnyRef.synchronized {
-    parentReferences = refs
-    this
-  }
-
-  private var childReference: String = ""
-
-  def getChildReference: String = AnyRef.synchronized { childReference }
-
-  def deleteChildReference: Unit = AnyRef.synchronized { childReference = "" }
-
-  def setChildReference(ref: String): GDALDataset = AnyRef.synchronized {
-    childReference = ref
-    this
-  }
-
-  private var selfReference: String = ""
-
-  def getSelfReference: String = AnyRef.synchronized { selfReference }
-
-  def setSelfReference(ref: String): GDALDataset = AnyRef.synchronized {
-    selfReference = ref
-    this
-  }
-
+case class GDALDataset(underlying: Dataset, parents: Array[GDALDataset] = Array()) extends GDALMajorObject {
   def buildOverviews(overviewlist: Array[Int], callback: ProgressCallback): Int = {
     underlying.BuildOverviews(null, overviewlist, callback)
   }
@@ -493,18 +462,7 @@ case class GDALDataset(underlying: Dataset) extends GDALMajorObject {
     if (underlying != null) underlying.delete
   }
 
-  // TODO: review this approach
-  // it looks like it never gets into the children nonEmpty clause
   override def finalize(): Unit = {
-    // println(s"underlying != null: ${underlying != null}")
-    if (underlying != null) {
-      if(getChildReference.isEmpty) {
-        underlying.delete
-        super.finalize()
-      } else {
-        // it never goes there for some reason ._.
-        selfRef = this
-      }
-    }
+    if (underlying != null) underlying.delete
   }
 }

@@ -20,7 +20,6 @@ import geotrellis.gdal.{GDAL, GDALDataset}
 import geotrellis.gdal.cache.LazyCache
 
 import com.github.blemale.scaffeine.Scaffeine
-import com.github.benmanes.caffeine.cache.RemovalCause.EXPLICIT
 import com.typesafe.scalalogging.LazyLogging
 
 case class GDALCacheConfig(
@@ -42,49 +41,13 @@ case class GDALCacheConfig(
       if (enableDefaultRemovalListener)
         cache.removalListener[String, GDALDataset] { case (key, dataset, event) =>
           logger.debug(s"removalListener: ${key}-${dataset} event: $event")
-          logger.debug(s"removalListener::dataset != null: ${dataset != null}")
-
-          if (dataset != null) {
-            logger.debug(s"removalListener::dataset.underlying != null: ${dataset.underlying != null}")
-            event match {
-              case EXPLICIT => dataset.delete
-              case _ =>
-                if (dataset.getChildReference.isEmpty) {
-                  // if it's a cache on weak refs, lets remove all parents from the cache on hard refs
-                  if (valuesType.isWeak) {
-                    val parents = dataset.getParentReferences
-                    if (parents != null) parents.foreach(GDAL.cacheOrdering.invalidate)
-                  }
-                  dataset.delete
-                }/* else {
-                  GDAL.cache.get(key, _ => dataset)
-                }*/
-            }
-          }
+          if (dataset != null) dataset.delete
         }
 
       cache.build[String, GDALDataset]
     }
 
     LazyCache(get, enabled)
-  }
-
-  def getWeakOrderingCache: LazyCache[String, GDALDataset] = {
-    def get = () => {
-      val cache = Scaffeine()
-      maximumSize.foreach(cache.maximumSize)
-      if (enableDefaultRemovalListener)
-        cache.removalListener[String, GDALDataset] { case (key, dataset, event) =>
-          logger.debug(s"WeakOrderingCache::removalListener: ${dataset} event: $event")
-          dataset.deleteChildReference
-          // we don't free mem on this step
-          // if (dataset != null) dataset.delete
-        }
-
-      cache.build[String, GDALDataset]
-    }
-
-    LazyCache(get, enabled && valuesType.isWeak)
   }
 
   def addShutdownHook: Unit =

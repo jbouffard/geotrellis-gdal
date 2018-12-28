@@ -741,15 +741,15 @@ object sgdal {
     gdal.GDALInfo(hDataset.underlying, infoOptions)
   }
 
-  def translate(dest: String, dataset: GDALDataset, translateOptions: TranslateOptions, callback: ProgressCallback): GDALDataset = AnyRef.synchronized {
+  def translate(dest: String, dataset: GDALDataset, translateOptions: TranslateOptions, callback: ProgressCallback): GDALDataset = {
     GDALDataset(gdal.Translate(dest, dataset.underlying, translateOptions, callback))
   }
 
-  def translate(dest: String, dataset: GDALDataset, translateOptions: TranslateOptions): GDALDataset = AnyRef.synchronized {
+  def translate(dest: String, dataset: GDALDataset, translateOptions: TranslateOptions): GDALDataset = {
     GDALDataset(gdal.Translate(dest, dataset.underlying, translateOptions))
   }
 
-  def warp(dstDS: GDALDataset, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions, callback: ProgressCallback): Int = AnyRef.synchronized {
+  def warp(dstDS: GDALDataset, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions, callback: ProgressCallback): Int = {
     gdal.Warp(dstDS.underlying, object_list_count.map(_.underlying), warpAppOptions, callback)
   }
 
@@ -757,12 +757,12 @@ object sgdal {
     gdal.Warp(dstDS.underlying, object_list_count.map(_.underlying), warpAppOptions)
   }
 
-  def warp(dest: String, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions, callback: ProgressCallback): GDALDataset = AnyRef.synchronized {
-    GDALDataset(gdal.Warp(dest, object_list_count.map(_.underlying), warpAppOptions, callback))
+  def warp(dest: String, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions, callback: ProgressCallback): GDALDataset = {
+    GDALDataset(gdal.Warp(dest, object_list_count.map(_.underlying), warpAppOptions, callback), object_list_count)
   }
 
-  def warp(dest: String, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions): GDALDataset = AnyRef.synchronized {
-    GDALDataset(gdal.Warp(dest, object_list_count.map(_.underlying), warpAppOptions))
+  def warp(dest: String, object_list_count: Array[GDALDataset], warpAppOptions: WarpOptions): GDALDataset = {
+    GDALDataset(gdal.Warp(dest, object_list_count.map(_.underlying), warpAppOptions), object_list_count)
   }
 
   def vectorTranslate(dstDS: GDALDataset, srcDS: GDALDataset, options: VectorTranslateOptions, callback: ProgressCallback): Int = {
