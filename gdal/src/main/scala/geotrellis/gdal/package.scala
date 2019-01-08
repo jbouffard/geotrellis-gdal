@@ -16,12 +16,6 @@
 
 package geotrellis
 
-import geotrellis.gdal.osr._
-import geotrellis.proj4.CRS
-import geotrellis.raster.{CellSize, GridBounds, RasterExtent}
-import geotrellis.util.MethodExtensions
-import geotrellis.vector.Extent
-
 import java.util.Base64
 
 package object gdal extends Serializable {
@@ -43,32 +37,5 @@ package object gdal extends Serializable {
 
   implicit class GDALWarpOptionOptionsListDatasetDependentMethods(options: Option[(String, List[GDALWarpOptions])]) {
     val name: String = options.map(_.name).getOrElse("")
-  }
-
-  implicit class GDALDatasetMethods(val self: GDALDataset) extends MethodExtensions[GDALDataset] {
-    lazy val extent: Extent = Extent(xmin, ymin, xmax, ymax)
-
-    lazy val rasterExtent: RasterExtent = {
-      if(self.getRasterXSize * self.getRasterYSize > Int.MaxValue)
-        sys.error(s"Cannot read this raster, cols * rows exceeds maximum array index (${self.getRasterXSize} * ${self.getRasterYSize})")
-
-      RasterExtent(extent, self.getRasterXSize, self.getRasterYSize)
-    }
-
-    lazy val gridBounds: GridBounds = GridBounds(0, 0, self.getRasterXSize - 1, self.getRasterYSize - 1)
-
-    lazy val geoTransform: Array[Double] = self.getGeoTransform
-
-    lazy val xmin: Double = geoTransform(0)
-
-    lazy val ymin: Double = geoTransform(3) + geoTransform(5) * self.getRasterYSize
-
-    lazy val xmax: Double = geoTransform(0) +  geoTransform(1) * self.getRasterXSize
-
-    lazy val ymax: Double = geoTransform(3)
-
-    lazy val cellSize: CellSize = CellSize(geoTransform(1), math.abs(geoTransform(5)))
-
-    def crs: Option[CRS] = self.getProjectionRef map { OSRSpatialReference(_).toCRS }
   }
 }

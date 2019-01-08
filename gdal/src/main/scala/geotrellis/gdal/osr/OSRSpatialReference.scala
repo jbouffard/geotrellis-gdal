@@ -650,6 +650,8 @@ case class OSRSpatialReference(underlying: SpatialReference) extends Cloneable {
     OSRSpatialReference(underlying.ConvertToOtherProjection(other_projection))
   }
 
+  /** GeoTrellis helper methods */
+
   def toCRS: CRS = CRS.fromString(exportToProj4)
 }
 
