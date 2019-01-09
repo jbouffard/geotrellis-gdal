@@ -36,9 +36,7 @@ trait GdalHadoopSparkContextMethods extends HadoopSparkContextMethods {
     )
   }
 
-  def netCdfRDD(
-    path: Path,
-    inputFormat: NetCdfInputFormat = DefaultNetCdfInputFormat): RDD[(TemporalProjectedExtent, Tile)] = {
+  def netCdfRDD(path: Path, inputFormat: NetCdfInputFormat = DefaultNetCdfInputFormat): RDD[(TemporalProjectedExtent, Tile)] = {
     val makeTime = (info: GdalRasterInfo) =>
     info.file.meta.find {
       case(key, value) => key.toLowerCase == inputFormat.baseDateMetaDataKey.toLowerCase

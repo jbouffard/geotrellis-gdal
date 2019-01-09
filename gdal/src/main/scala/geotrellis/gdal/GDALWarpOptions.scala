@@ -82,7 +82,7 @@ case class GDALWarpOptions(
     */
   ovr: Option[OverviewStrategy] = Some(AutoHigherResolution),
   /** -to, set a transformer option suitable to pass to [GDALCreateGenImgProjTransformer2()](https://www.gdal.org/gdal__alg_8h.html#a94cd172f78dbc41d6f407d662914f2e3) */
-  to: List[(String, String)] = Nil,
+  to: List[(String, String)] = List("SRC_METHOD" -> "NO_GEOTRANSFORM"),
   /** -novshiftgrid, Disable the use of vertical datum shift grids when one of the source or target SRS has an explicit vertical datum, and the input dataset is a single band dataset. */
   novShiftGrid: Boolean = false,
   /** -order n, order of polynomial used for warping (1 to 3). The default is to select a polynomial order based on the number of GCPs.*/

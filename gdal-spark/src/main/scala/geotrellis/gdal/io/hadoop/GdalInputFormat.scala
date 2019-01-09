@@ -23,12 +23,14 @@ import geotrellis.raster._
 import geotrellis.spark.io.hadoop.HdfsUtils
 import geotrellis.spark.io.hadoop.HdfsUtils._
 
+import org.gdal.gdal._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.mapreduce.lib.input.{FileInputFormat, FileSplit}
 import org.apache.hadoop.mapreduce.{InputSplit, JobContext, RecordReader, TaskAttemptContext}
 
 import java.util.regex.Pattern
+import scala.collection.JavaConverters._
 
 /**
   * This class uses GDAL to attempt to read a raster file.
@@ -65,14 +67,14 @@ class GdalRecordReader extends RecordReader[GdalRasterInfo, Tile] {
   private val hasDriveLetterSpecifier = Pattern.compile("^/?[a-zA-Z]:")
   private var conf: Configuration = _
   private var file: LocalPath = _
-  private var gdalDataset: GDALDataset = _
+  private var gdalDataset: Dataset = _
   private var reader: GDALReader = _
   private var fileInfo: GdalFileInfo = _
 
   private var bandIndex: Int = 0
   private var bandCount: Int = _
 
-  private var band: GDALBand = null
+  private var band: Band = null
   private var bandRaster: Raster[MultibandTile] = null
   private var bandMeta: Map[String, String] = _
 
@@ -96,7 +98,7 @@ class GdalRecordReader extends RecordReader[GdalRasterInfo, Tile] {
       GdalFileInfo(
         rasterExtent = gdalDataset.rasterExtent,
         crs          = gdalDataset.crs.getOrElse(LatLng),
-        meta         = parseMeta(gdalDataset.getMetadata_List("").toList)
+        meta         = parseMeta(gdalDataset.GetMetadata_List("").asScala.toList.map(_.asInstanceOf[String]))
       )
   }
 
@@ -110,10 +112,10 @@ class GdalRecordReader extends RecordReader[GdalRasterInfo, Tile] {
     val hasNext = bandIndex < bandCount  // bands are indexed from 1 to bandCount
     if (hasNext) {
       bandIndex += 1
-      band = gdalDataset.getRasterBand(bandIndex)
+      band = gdalDataset.GetRasterBand(bandIndex)
       bandRaster = reader.readRaster(bands = Seq(bandIndex - 1))
       bandMeta = band
-        .getMetadata_List("").toList
+        .GetMetadata_List("").asScala.toList.map(_.asInstanceOf[String])
         .map(_.split("="))
         .map(l => l(0) -> l(1))
         .toMap

@@ -16,9 +16,12 @@
 
 package geotrellis.gdal
 
-import geotrellis.gdal.osr.{OSRCoordinateTransformation, OSRSpatialReference}
-
 import java.awt.Color
+
+import org.gdal.gdal.{Band, Dataset, GCP, gdal}
+import org.gdal.osr.{CoordinateTransformation, SpatialReference}
+
+import scala.collection.JavaConverters._
 
 object GDALInfo {
   def main(args:Array[String]): Unit =
@@ -30,15 +33,15 @@ object GDALInfo {
     }
 
   def apply(options: GDALInfoOptions): Unit = {
-    sgdal.AllRegister
+    gdal.AllRegister
 
     val raster = GDAL.open(options.file.getAbsolutePath)
 
-    val driver = raster.getDriver
+    val driver = raster.GetDriver
 
     println(s"Driver: ${driver.getShortName}/${driver.getLongName}")
 
-    val fileList = raster.getFileList
+    val fileList = raster.GetFileList.asScala.toList
     if(fileList.isEmpty) {
       println("Files: none associated")
     } else {
@@ -50,10 +53,10 @@ object GDALInfo {
 
     raster.getProjectionRef match {
       case Some(projection) =>
-        val srs = OSRSpatialReference(projection)
+        val srs = new SpatialReference(projection)
         if(srs != null && projection.length != 0) {
           val arr = Array.ofDim[String](1)
-          srs.exportToPrettyWkt(arr)
+          srs.ExportToPrettyWkt(arr)
           println("Coordinate System is:")
           println(arr(0))
         } else {
@@ -63,7 +66,7 @@ object GDALInfo {
       case None =>
     }
 
-    val geoTransform = raster.getGeoTransform
+    val geoTransform = raster.GetGeoTransform
 
     if (geoTransform(2) == 0.0 && geoTransform(4) == 0.0) {
       println(s"Origin = (${geoTransform(0)},${geoTransform(3)})")
@@ -74,8 +77,8 @@ object GDALInfo {
       println(s"  ${geoTransform(3)}, ${geoTransform(4)}, ${geoTransform(5)}")
     }
 
-    if(options.showGcps && raster.getGCPCount > 0) {
-      for((gcp, i) <- raster.getGCPs.zipWithIndex) {
+    if(options.showGcps && raster.GetGCPCount > 0) {
+      for((gcp, i) <- raster.GetGCPs.asScala.toList.map(_.asInstanceOf[GCP]).zipWithIndex) {
         println(s"GCP[$i]: Id=${gcp.getId}, Info=${gcp.getInfo}")
         // col, row, x, y, x
         println(s"    (${gcp.getGCPPixel},${gcp.getGCPLine}) (${gcp.getGCPX},${gcp.getGCPY},${gcp.getGCPZ})")
@@ -84,7 +87,7 @@ object GDALInfo {
 
     if(options.showMetadata) {
       def printMetadata(header: String, id: String = "") = {
-        val md = raster.getMetadata_List(id)
+        val md = raster.GetMetadata_List(id).asScala
         if(md.nonEmpty) {
           println(header)
           for(key <- md) {
@@ -118,10 +121,10 @@ object GDALInfo {
     reportCorner(raster, "Lower Right", raster.getRasterXSize, raster.getRasterYSize)
     reportCorner(raster, "Center     ", raster.getRasterXSize / 2.0, raster.getRasterYSize / 2.0)
 
-    for ((band, i) <- raster.getRasterBands().zipWithIndex) {
-      print(s"Band ${i+1} Block=${band.getBlockXSize}x${band.getBlockYSize} ")
-      println(s"Type=${band.getDataType}, ColorInterp=${band.getColorInterpretationName}")
-      band.getDescription match {
+    for ((band, i) <- raster.getRasterBands.zipWithIndex) {
+      print(s"Band ${i+1} Block=${band.GetBlockXSize}x${band.GetBlockYSize} ")
+      println(s"Type=${band.getDataType}, ColorInterp=${gdal.GetColorInterpretationName(band.GetColorInterpretation)}")
+      Option(band.GetDescription) match {
         case Some(description) => println(s"  Description = $description")
         case None =>
       }
@@ -141,9 +144,9 @@ object GDALInfo {
       // TODO: mask band overviews
       // TODO: unit type
 
-      if (band.getRasterCategoryNames.nonEmpty) {
+      if (band.GetRasterCategoryNames.asScala.nonEmpty) {
         println( "  Categories:" )
-        for ((category, i) <- band.getRasterCategoryNames.zipWithIndex) {
+        for ((category, i) <- band.GetRasterCategoryNames.asScala.zipWithIndex) {
           println(s"      $i: $category")
         }
       }
@@ -152,7 +155,7 @@ object GDALInfo {
       // TODO: scale
       // TODO: metadata
 
-      if (band.getColorInterpretationName == "Palette") {
+      if (gdal.GetColorInterpretationName(band.GetColorInterpretation) == "Palette") {
         RasterColor.printableColorTable(band) match {
           case Some((colorTable, name)) =>
             println(s"  Color Table ($name with ${colorTable.size} entries)")
@@ -169,27 +172,27 @@ object GDALInfo {
     }
   }
 
-  def reportCorner(dataset: GDALDataset, cornerName: String, x: Double, y: Double) = {
+  def reportCorner(dataset: Dataset, cornerName: String, x: Double, y: Double) = {
     print(cornerName + " ")
-    if (dataset.getGeoTransform.exists(_ != 0)) {
+    if (dataset.GetGeoTransform.exists(_ != 0)) {
       println(s"($x,$y)")
     } else {
-      val gt = dataset.getGeoTransform
+      val gt = dataset.GetGeoTransform
       val geox = gt(0) + gt(1) * x + gt(2) * y
       val geoy = gt(3) + gt(4) * x + gt(5) * y
       print(f"($geox%12.3f,$geoy%12.3f) ")
 
       dataset.getProjectionRef match {
         case Some(projection) =>
-          val srs = OSRSpatialReference(projection)
+          val srs = new SpatialReference(projection)
           if (srs != null && projection.length != 0) {
-            val latLong = srs.cloneGeogCS
+            val latLong = srs.CloneGeogCS
             if (latLong != null) {
-              val transform = OSRCoordinateTransformation.createCoordinateTransformation(srs, latLong)
+              val transform = CoordinateTransformation.CreateCoordinateTransformation(srs, latLong)
               if (transform != null) {
-                val point = transform.transformPoint(geox, geoy, 0)
-                val xtrans = sgdal.decToDMS(point(0), "Long", 2)
-                val ytrans = sgdal.decToDMS(point(1), "Lat", 2)
+                val point = transform.TransformPoint(geox, geoy, 0)
+                val xtrans = gdal.DecToDMS(point(0), "Long", 2)
+                val ytrans = gdal.DecToDMS(point(1), "Lat", 2)
                 println(s"($xtrans,$ytrans)")
                 transform.delete()
               }
@@ -209,9 +212,9 @@ class RasterColor(color: Color) {
 }
 
 object RasterColor {
-  def printableColorTable(band: GDALBand): Option[(Vector[RasterColor], String)] = {
-    Option(band.getRasterColorTable).map { ct =>
-      ((0 until ct.getCount).map { i => new RasterColor(ct.getColorEntry(i)) }.toVector, ct.getPaletteInterpretationName)
+  def printableColorTable(band: Band): Option[(Vector[RasterColor], String)] = {
+    Option(band.GetRasterColorTable).map { ct =>
+      ((0 until ct.GetCount).map { i => new RasterColor(ct.GetColorEntry(i)) }.toVector, gdal.GetPaletteInterpretationName(ct.GetPaletteInterpretation))
     }
   }
 }

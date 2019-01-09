@@ -1,12 +1,13 @@
 package geotrellis.gdal.config
 
-import geotrellis.gdal.sgdal
+import org.gdal.gdal.gdal
 
-case class GDALOptionsConfig(maxDatasetPoolSize: Int = 1, vrtSharedSource: Boolean = false, cplDebug: String = "OFF") {
-  def setMaxDatasetPoolSize: Unit = sgdal.setConfigOption("GDAL_MAX_DATASET_POOL_SIZE", s"$maxDatasetPoolSize")
-  def setVRTSharedSource: Unit = sgdal.setConfigOption("VRT_SHARED_SOURCE", s"${ if(vrtSharedSource) 1 else 0 }")
-  def setCPLDebugMode: Unit = sgdal.setConfigOption("CPL_DEBUG", cplDebug)
-  def set: Unit = { setMaxDatasetPoolSize; setVRTSharedSource; setCPLDebugMode }
+case class GDALOptionsConfig(maxDatasetPoolSize: Int = 1, vrtSharedSource: Boolean = false, cplDebug: String = "OFF", useExceptions: Boolean = true) {
+  def setMaxDatasetPoolSize: Unit = gdal.SetConfigOption("GDAL_MAX_DATASET_POOL_SIZE", s"$maxDatasetPoolSize")
+  def setVRTSharedSource: Unit = gdal.SetConfigOption("VRT_SHARED_SOURCE", s"${ if(vrtSharedSource) 1 else 0 }")
+  def setCPLDebugMode: Unit = gdal.SetConfigOption("CPL_DEBUG", cplDebug)
+  def setUseExceptions: Unit = if(useExceptions) gdal.UseExceptions()
+  def set: Unit = { setMaxDatasetPoolSize; setVRTSharedSource; setCPLDebugMode; setUseExceptions }
 }
 
 object GDALOptionsConfig extends PureConfigSettings {

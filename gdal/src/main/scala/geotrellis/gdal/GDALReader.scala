@@ -27,11 +27,11 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.net.URI
 
-class GDALReader(val dataset: GDALDataset) {
+class GDALReader(val dataset: Dataset) {
   protected val bandCount: Int = dataset.getRasterCount
 
   protected val noDataValue: Option[Double] =
-    dataset.getRasterBand(1).getNoDataValue
+    dataset.getNoDataValue
 
   def readRaster(extent: Extent): Raster[MultibandTile] =
     readRaster(dataset.rasterExtent.gridBoundsFor(extent))
@@ -57,7 +57,7 @@ class GDALReader(val dataset: GDALDataset) {
     bands: Seq[Int] = 0 until bandCount
   ): MultibandTile = AnyRef.synchronized {
     // NOTE: Bands are not 0-base indexed, so we must add 1// NOTE: Bands are not 0-base indexed, so we must add 1
-    val baseBand = dataset.getRasterBand(1)
+    val baseBand = dataset.GetRasterBand(1)
 
     val bandCount = bands.size
     val indexBand = bands.zipWithIndex.map { case (v, i) => (i, v) }.toMap
@@ -78,9 +78,9 @@ class GDALReader(val dataset: GDALDataset) {
       // in the byte case we can strictly use
       val bandsDataArray = Array.ofDim[Array[Byte]](bandCount)
       cfor(0)(_ < bandCount, _ + 1) { i =>
-        val rBand = dataset.getRasterBand(indexBand(i) + 1)
+        val rBand = dataset.GetRasterBand(indexBand(i) + 1)
         val dataBuffer = new Array[Byte](bufferSize.toInt)
-        val returnVal = rBand.readRaster(
+        val returnVal = rBand.ReadRaster(
           gridBounds.colMin,
           gridBounds.rowMin,
           gridBounds.width,
@@ -110,9 +110,9 @@ class GDALReader(val dataset: GDALDataset) {
       // for these types we need buffers
       val bandsDataBuffer = Array.ofDim[ByteBuffer](bandCount)
       cfor(0)(_ < bandCount, _ + 1) { i =>
-        val rBand = dataset.getRasterBand(indexBand(i) + 1)
+        val rBand = dataset.GetRasterBand(indexBand(i) + 1)
         val dataBuffer = new Array[Byte](bufferSize.toInt)
-        val returnVal = rBand.readRaster(
+        val returnVal = rBand.ReadRaster(
           gridBounds.colMin,
           gridBounds.rowMin,
           gridBounds.width,
@@ -199,8 +199,7 @@ class GDALReader(val dataset: GDALDataset) {
 }
 
 object GDALReader {
-  def apply(dataset: Dataset): GDALReader = new GDALReader(GDALDataset(dataset))
-  def apply(dataset: GDALDataset): GDALReader = new GDALReader(dataset)
+  def apply(dataset: Dataset): GDALReader = new GDALReader(dataset)
   def apply(path: String): GDALReader = new GDALReader(GDAL.open(path))
   def apply(uri: URI): GDALReader = new GDALReader(GDAL.openURI(uri))
 }
