@@ -61,7 +61,7 @@ object GDAL extends LazyLogging {
   /** We may want to force invalidate caches, in case we don't trust GC too much */
   def cacheCleanUp: Unit = cache.invalidateAll()
 
-  def openPath(path: String): Dataset = {
+  def openPath(path: String): Dataset = AnyRef.synchronized {
     lazy val getDS = gdal.Open(path, gdalconstConstants.GA_ReadOnly)
     val ds = cache.get(path.base64, _ => getDS)
     if(ds == null) throw GDALException.lastError()
@@ -70,7 +70,7 @@ object GDAL extends LazyLogging {
 
   // parentWarpOptions is a tuple of a path to the initial dataset and a list of previous transformations
   // it is required to calculate a proper cache key
-  private def warp(dest: String, baseDatasets: Array[Dataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset = {
+  private def warp(dest: String, baseDatasets: Array[Dataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset = AnyRef.synchronized {
     // current warp key
     val key = s"${parentWarpOptions.name}${warpOptions.name}".base64
     // put parent into the strong cache
