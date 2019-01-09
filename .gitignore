@@ -31,6 +31,7 @@ _SUCCESS
 *.swo
 *.sublime-*
 .vagrant
+*.log
 
 lib
 index.html

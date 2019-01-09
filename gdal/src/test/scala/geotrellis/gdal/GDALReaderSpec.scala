@@ -6,9 +6,10 @@ import geotrellis.raster.testkit._
 import geotrellis.raster.io.geotiff._
 
 import org.scalatest._
+import java.io.File
 
 class GDALReaderSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
-  val path = "gdal/src/test/resources/data/slope.tif"
+  val path = s"${new File("").getAbsolutePath()}/src/test/resources/data/slope.tif"
 
   describe("reading a GeoTiff") {
     ifGdalInstalled {
@@ -58,7 +59,7 @@ class GDALReaderSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalle
       }
 
       it("should read CRS from file") {
-        val dataset = GDAL.open("gdal/src/test/resources/data/geotiff-test-files/all-ones.tif")
+        val dataset = GDAL.open(s"${new File("").getAbsolutePath()}/src/test/resources/data/geotiff-test-files/all-ones.tif")
         dataset.crs should equal(Some(LatLng))
       }
     }
@@ -68,8 +69,8 @@ class GDALReaderSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalle
     ifGdalWithJpeg2000Installed {
       val lengthExpected = 100
       type TypeExpected = UShortCells
-      val jpeg2000Path = "gdal/src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
-      val jpegTiffPath = "gdal/src/test/resources/data/jpeg2000-test-files/jpegTiff.tif"
+      val jpeg2000Path = s"${new File("").getAbsolutePath()}/src/test/resources/data/jpeg2000-test-files/testJpeg2000.jp2"
+      val jpegTiffPath = s"${new File("").getAbsolutePath()}/src/test/resources/data/jpeg2000-test-files/jpegTiff.tif"
 
       val dataset = GDAL.open(jpeg2000Path)
       val jpegReader = GDALReader(dataset)

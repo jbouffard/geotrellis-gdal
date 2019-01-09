@@ -62,7 +62,11 @@ lazy val commonSettings = Seq(
     "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
     "locationtech-snapshots" at "https://repo.locationtech.org/content/groups/snapshots",
     "boundless repo" at "https://repo.boundlessgeo.com/main/"
-  )
+  ),
+  Test / fork := true,
+  Test / parallelExecution := false,
+  Test / testOptions += Tests.Argument("-oDF"),
+  javaOptions ++= Seq("-Djava.library.path=/usr/local/lib")
 )
 
 lazy val root = (project in file("."))
@@ -100,5 +104,6 @@ lazy val `gdal` = project
     Dependencies.geotrellisRaster % Provided,
     Dependencies.geotrellisRasterTestkit % Test,
     Dependencies.gdal,
-    Dependencies.scopt
+    Dependencies.scopt,
+    Dependencies.catsEffect % Test
   ))
