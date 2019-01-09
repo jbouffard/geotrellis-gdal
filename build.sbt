@@ -100,5 +100,6 @@ lazy val `gdal` = project
     Dependencies.geotrellisRaster % Provided,
     Dependencies.geotrellisRasterTestkit % Test,
     Dependencies.gdal,
-    Dependencies.scopt
+    Dependencies.scopt,
+    Dependencies.catsEffect % Test
   ))

@@ -29,6 +29,8 @@ object Dependencies {
   val sparkSQL     = "org.apache.spark"  %% "spark-sql"     % Version.spark
   val hadoopClient = "org.apache.hadoop" %  "hadoop-client" % Version.hadoop
 
+  val catsEffect = "org.typelevel" %% "cats-effect" % "1.0.0"
+
   val scalaTest  = "org.scalatest" %% "scalatest" % "3.0.5"
   val scopt      = "com.github.scopt"            %% "scopt"       % "3.7.1"
 }
