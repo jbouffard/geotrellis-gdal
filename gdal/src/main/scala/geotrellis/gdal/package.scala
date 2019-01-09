@@ -21,6 +21,7 @@ import java.util.Base64
 import geotrellis.proj4.CRS
 import geotrellis.raster.{CellSize, GridBounds, RasterExtent}
 import geotrellis.vector.Extent
+
 import org.gdal.gdal.{Band, Dataset}
 import org.gdal.osr.SpatialReference
 

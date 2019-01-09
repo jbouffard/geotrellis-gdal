@@ -47,8 +47,8 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
           List(-9999.0),
           Nil,
           Some(AutoHigherResolution),
-          Nil, false, None, false, false, false, None, Nil, None, None, false, false, false, None,
-          false, false, Nil, None, None, None, None, None, false, false, false, None, false, Nil, Nil, Nil, None
+          List("SRC_METHOD" -> "NO_GEOTRANSFORM"), false, None, false, false, false, None, Nil, None, None, false, false,
+          false, None, false, false, Nil, None, None, None, None, None, false, false, false, None, false, Nil, Nil, Nil, None
         )
 
       val resampleOptions =
@@ -65,12 +65,11 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
           List(-9999.0),
           Nil,
           Some(AutoHigherResolution),
-          Nil, false, None, false, false, false, None, Nil, None, None, false, false, false, None, false,
-          false, Nil, None, None, None, None, None, false, false, false, None, false, Nil, Nil, Nil, None
+          List("SRC_METHOD" -> "NO_GEOTRANSFORM"), false, None, false, false, false, None, Nil, None, None, false, false,
+          false, None, false, false, Nil, None, None, None, None, None, false, false, false, None, false, Nil, Nil, Nil, None
         )
 
       def dsreproject(dataset: Dataset): Dataset = GDAL.warp("", dataset, reprojectOptions, None)
-
       def dsresample(dataset: Dataset, uri: Option[String]): Dataset = GDAL.warp("", dataset, resampleOptions, uri.map(str => str -> List(reprojectOptions)))
 
       it("GDAL.open should work") {

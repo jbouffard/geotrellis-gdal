@@ -33,12 +33,10 @@ import java.net.URI
 // All of the logic in this file was taken from:
 // https://github.com/geotrellis/geotrellis-gdal/blob/master/gdal/src/main/scala/geotrellis/gdal/Gdal.scala
 
-private [gdal] class GDALException(code: Int, msg: String)
-  extends RuntimeException(s"GDAL ERROR $code: $msg")
+private [gdal] case class GDALException(code: Int, msg: String) extends RuntimeException(s"GDAL ERROR $code: $msg")
 
 private [gdal] object GDALException {
-  def lastError(): GDALException =
-    new GDALException(gdal.GetLastErrorNo, gdal.GetLastErrorMsg)
+  def lastError(): GDALException = GDALException(gdal.GetLastErrorNo, gdal.GetLastErrorMsg)
 }
 
 object GDAL extends LazyLogging {
