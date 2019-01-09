@@ -1,9 +1,9 @@
 FROM openjdk:8-alpine
 
-### GDAL 2.3.2 ###
+### GDAL 2.4.0 ###
 ENV ROOTDIR /usr/local/
 ENV LD_LIBRARY_PATH /usr/local/lib
-ENV GDAL_VERSION 2.3.2
+ENV GDAL_VERSION 2.4.0
 ENV OPENJPEG_VERSION 2.3.0
 
 ### Apache Ant 1.10.5 ###
@@ -62,8 +62,6 @@ RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make && make install
     && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
-    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* /usr/local/lib/ \
-    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f gdal.jar /usr/local/lib/ \
     && cd $ROOTDIR && rm -Rf src/gdal*
 
 RUN touch ${JAVA_HOME}/release
