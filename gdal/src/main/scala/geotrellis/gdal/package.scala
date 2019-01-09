@@ -24,6 +24,8 @@ import geotrellis.vector.Extent
 import org.gdal.gdal.{Band, Dataset}
 import org.gdal.osr.SpatialReference
 
+import scala.util.Try
+
 package object gdal extends Serializable {
   implicit class StringMethods(val str: String) extends AnyVal {
     def base64: String = Base64.getEncoder.encodeToString(str.getBytes)
@@ -93,6 +95,6 @@ package object gdal extends Serializable {
     lazy val cellSize: CellSize = CellSize(geoTransform(1), math.abs(geoTransform(5)))
 
     /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
-    def crs: Option[CRS] = AnyRef.synchronized(getProjectionRef map { new SpatialReference(_).toCRS })
+    def crs: Option[CRS] = AnyRef.synchronized(getProjectionRef.flatMap { s => Try { new SpatialReference(s).toCRS }.toOption })
   }
 }
