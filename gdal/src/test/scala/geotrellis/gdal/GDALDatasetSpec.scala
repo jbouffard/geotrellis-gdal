@@ -81,12 +81,11 @@ class GDALDatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstall
       // non cached specs may fail due to max opened files limitation
       ignore("sgdal.open multithreaded test forkjoin pool") {
         println(java.lang.Thread.activeCount())
-        sgdal.setConfigOption("CPL_DEBUG", "ON")
 
         val i = 1000
         implicit val cs = IO.contextShift(ExecutionContext.global)
 
-        // we to make it work with weak refs we have to remember all the datasets
+        // to make it work with weak refs we have to remember all the datasets
         val res: List[(GDALDataset, GDALDataset, GDALDataset)] =
           (1 to i).toList.flatMap { _ =>
             (0 to 4).flatMap { i =>
@@ -118,12 +117,11 @@ class GDALDatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstall
 
       it("GDAL.open multithreaded test forkjoin pool") {
         println(java.lang.Thread.activeCount())
-        sgdal.setConfigOption("CPL_DEBUG", "ON")
 
         val i = 1000
         implicit val cs = IO.contextShift(ExecutionContext.global)
 
-        // we to make it work with weak refs we have to remember all the datasets
+        // to make it work with weak refs we have to remember all the datasets
         val res: List[(GDALDataset, GDALDataset, GDALDataset)] =
           (1 to i).toList.flatMap { _ =>
             (0 to 4).flatMap { i =>
@@ -156,7 +154,6 @@ class GDALDatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstall
       // non cached specs may fail due to max opened files limitation
       ignore("sgdal.open multithreaded test fixed thread pool") {
         println(java.lang.Thread.activeCount())
-        sgdal.setConfigOption("CPL_DEBUG", "ON")
 
         val i = 1000
         val n = 200
@@ -164,7 +161,7 @@ class GDALDatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstall
         val ec = ExecutionContext.fromExecutor(pool)
         implicit val cs = IO.contextShift(ec)
 
-        // we to make it work with weak refs we have to remember all the datasets
+        // to make it work with weak refs we have to remember all the datasets
         val res: List[(GDALDataset, GDALDataset, GDALDataset)] =
           (1 to i).toList.flatMap { _ =>
             (0 to 4).flatMap { i =>
@@ -196,7 +193,6 @@ class GDALDatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstall
 
       it("GDAL.open multithreaded test fixed thread pool") {
         println(java.lang.Thread.activeCount())
-        sgdal.setConfigOption("CPL_DEBUG", "ON")
 
         val i = 1000
         val n = 200
@@ -204,7 +200,7 @@ class GDALDatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstall
         val ec = ExecutionContext.fromExecutor(pool)
         implicit val cs = IO.contextShift(ec)
 
-        // we to make it work with weak refs we have to remember all the datasets
+        // to make it work with weak refs we have to remember all the datasets
         val res: List[(GDALDataset, GDALDataset, GDALDataset)] =
           (1 to i).toList.flatMap { _ =>
             (0 to 4).flatMap { i =>
