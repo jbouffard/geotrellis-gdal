@@ -16,6 +16,8 @@
 
 package geotrellis.gdal
 
+import org.gdal.gdal.gdal
+
 object GDALDataType {
   val types =
     List(
@@ -36,7 +38,7 @@ object GDALDataType {
 
 abstract sealed class GDALDataType(val code: Int) {
   override
-  def toString: String = sgdal.getDataTypeName(code)
+  def toString: String = gdal.GetDataTypeName(code)
 }
 
 // https://github.com/OSGeo/gdal/blob/512aa6ae763424904a986613cd2a45569d8dbe5d/gdal/swig/include/gdal.i#L129-L143

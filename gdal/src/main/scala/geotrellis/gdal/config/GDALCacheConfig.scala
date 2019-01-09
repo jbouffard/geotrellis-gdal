@@ -16,9 +16,10 @@
 
 package geotrellis.gdal.config
 
-import geotrellis.gdal.{GDAL, GDALDataset}
+import geotrellis.gdal.GDAL
 import geotrellis.gdal.cache.LazyCache
 
+import org.gdal.gdal.Dataset
 import com.github.blemale.scaffeine.Scaffeine
 import com.typesafe.scalalogging.LazyLogging
 
@@ -29,7 +30,7 @@ case class GDALCacheConfig(
   enabled: Boolean = true,
   withShutdownHook: Boolean = true
 ) extends LazyLogging {
-  def getCache: LazyCache[String, GDALDataset] = {
+  def getCache: LazyCache[String, Dataset] = {
     def get = () => {
       val cache = Scaffeine()
       maximumSize.foreach(cache.maximumSize)
@@ -39,12 +40,12 @@ case class GDALCacheConfig(
         case _ => // do nothing
       }
       if (enableDefaultRemovalListener)
-        cache.removalListener[String, GDALDataset] { case (key, dataset, event) =>
+        cache.removalListener[String, Dataset] { case (key, dataset, event) =>
           logger.debug(s"removalListener: ${key}-${dataset} event: $event")
           if (dataset != null) dataset.delete
         }
 
-      cache.build[String, GDALDataset]
+      cache.build[String, Dataset]
     }
 
     LazyCache(get, enabled)

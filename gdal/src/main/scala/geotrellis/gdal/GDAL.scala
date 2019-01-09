@@ -24,6 +24,7 @@ import cats.syntax.option._
 import cats.instances.list._
 import cats.instances.either._
 
+import org.gdal.gdal.{Dataset, gdal}
 import org.gdal.gdalconst.gdalconstConstants
 import com.typesafe.scalalogging.LazyLogging
 
@@ -37,31 +38,31 @@ private [gdal] class GDALException(code: Int, msg: String)
 
 private [gdal] object GDALException {
   def lastError(): GDALException =
-    new GDALException(sgdal.getLastErrorNo, sgdal.getLastErrorMsg)
+    new GDALException(gdal.GetLastErrorNo, gdal.GetLastErrorMsg)
 }
 
 object GDAL extends LazyLogging {
-  sgdal.AllRegister
+  gdal.AllRegister
 
   // sets GDALConfig options
   GDALOptionsConfig.set
 
-  def openURI(uri: URI): GDALDataset =
+  def openURI(uri: URI): Dataset =
     openPath(VSIPath(uri.toString).vsiPath)
 
-  def open(path: String): GDALDataset =
+  def open(path: String): Dataset =
     if (VSIPath.isVSIFormatted(path))
       openPath(path)
     else
       openPath(VSIPath(path).vsiPath)
 
-  @transient lazy val cache: LazyCache[String, GDALDataset] = GDALCacheConfig.getCache
+  @transient lazy val cache: LazyCache[String, Dataset] = GDALCacheConfig.getCache
 
   /** We may want to force invalidate caches, in case we don't trust GC too much */
   def cacheCleanUp: Unit = cache.invalidateAll()
 
-  def openPath(path: String): GDALDataset = {
-    lazy val getDS = sgdal.open(path, gdalconstConstants.GA_ReadOnly)
+  def openPath(path: String): Dataset = {
+    lazy val getDS = gdal.Open(path, gdalconstConstants.GA_ReadOnly)
     val ds = cache.get(path.base64, _ => getDS)
     if(ds == null) throw GDALException.lastError()
     ds
@@ -69,25 +70,25 @@ object GDAL extends LazyLogging {
 
   // parentWarpOptions is a tuple of a path to the initial dataset and a list of previous transformations
   // it is required to calculate a proper cache key
-  private def warp(dest: String, baseDatasets: Array[GDALDataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): GDALDataset = {
+  private def warp(dest: String, baseDatasets: Array[Dataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset = {
     // current warp key
     val key = s"${parentWarpOptions.name}${warpOptions.name}".base64
     // put parent into the strong cache
-    lazy val getDS = sgdal.warp(dest, baseDatasets, warpOptions.toWarpOptions)
+    lazy val getDS = gdal.Warp(dest, baseDatasets, warpOptions.toWarpOptions)
     val ds = cache.get(key.base64, _ => getDS)
     if(ds == null) throw GDALException.lastError()
     ds
   }
 
-  def warp(dest: String, baseDataset: GDALDataset, warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): GDALDataset =
+  def warp(dest: String, baseDataset: Dataset, warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset =
     warp(dest, Array(baseDataset), warpOptions, parentWarpOptions)
 
-  def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions]): GDALDataset = {
+  def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions]): Dataset = {
     // if we want to perform warp operations
     if (list.nonEmpty) {
       // let's find the latest cached dataset, once we'll find smth let's stop
       val Left(Some(dataset)) =
-        list.zipWithIndex.reverse.foldLeftM(Option.empty[GDALDataset]) { case (acc, (_, idx)) =>
+        list.zipWithIndex.reverse.foldLeftM(Option.empty[Dataset]) { case (acc, (_, idx)) =>
           acc match {
             // successful dataset retrive, in case for some reason there is smth non empty
             case ds @ Some(_) => Left(ds)
