@@ -45,8 +45,12 @@ object sgdal {
     gdal.Debug(msg_class, message)
   }
 
-  def setErrorHandler(pszCallbackName: String): Int = {
-    gdal.SetErrorHandler(pszCallbackName)
+  def setErrorHandler(pfnErrorHandler: SWIGTYPE_p_CPLErrorHandler, user_data: SWIGTYPE_p_void): Int = {
+    gdal.SetErrorHandler(pfnErrorHandler, user_data)
+  }
+
+  def setErrorHandler(pfnErrorHandler: SWIGTYPE_p_CPLErrorHandler): Int = {
+    gdal.SetErrorHandler(pfnErrorHandler)
   }
 
   def setErrorHandler: Int = {
