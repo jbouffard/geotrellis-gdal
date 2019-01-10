@@ -94,13 +94,9 @@ object GDALUtils {
           case _ => FloatCellType
         }
       case UnknownType =>
-        noDataValue match {
-          case Some(nd) if java.lang.Double.isFinite(nd) => DoubleUserDefinedNoDataCellType(nd)
-          case Some(nd) => DoubleConstantNoDataCellType
-          case _ => DoubleCellType
-        }
+        throw new UnsupportedOperationException(s"Datatype ${datatype} is not supported.")
       case TypeCInt16 | TypeCInt32 | TypeCFloat32 | TypeCFloat64 =>
-        throw new UnsupportedOperationException("Complex datatypes are not supported")
+        throw new UnsupportedOperationException("Complex datatypes are not supported.")
     }
 
   def deriveOverviewStrategyString(strategy: OverviewStrategy): String = strategy match {

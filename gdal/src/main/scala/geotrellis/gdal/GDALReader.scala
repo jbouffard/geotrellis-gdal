@@ -84,7 +84,6 @@ class GDALReader(val dataset: Dataset) {
       minMaxValues = minMax
     )
 
-    /** TODO: think about how to handle UByte case **/
     if (bufferType == gdalconstConstants.GDT_Byte) {
       // in the byte case we can strictly use
       val bandsDataArray = Array.ofDim[Array[Byte]](bandCount)
