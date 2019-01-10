@@ -34,3 +34,8 @@ val firstBand: (Tile, RasterExtent) =
 Note that the `band` parameter specifies the band to be read and turned
 into a tile rather than the number of bands expected.
 
+## GDAL Compatibility Matrix
+
+| `geotrellis-gdal` | GDAL     |
+| ----------------- | -------- |
+| >= v0.17.x        | >= 2.3.3 |
