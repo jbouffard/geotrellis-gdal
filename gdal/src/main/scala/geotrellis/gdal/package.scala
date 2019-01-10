@@ -135,7 +135,5 @@ package object gdal extends Serializable {
         case _ => false
       }
     }
-
-    def as[T <: CellType]: T = self.asInstanceOf[T]
   }
 }

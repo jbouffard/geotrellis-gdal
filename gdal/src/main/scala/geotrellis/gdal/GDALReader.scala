@@ -112,10 +112,16 @@ class GDALReader(val dataset: Dataset) {
         MultibandTile(bandsDataArray.map { b => BitArrayTile(b, gridBounds.width, gridBounds.height) })
       } else {
         if(cellType.isUnsigned) {
-          val ct = cellType.as[UByteCells with NoDataHandling]
+          val ct = cellType match {
+            case c: UByteCells with NoDataHandling => c
+            case _ => throw new Exception(s"CellType ${cellType} can't be casted to UByte.")
+          }
           MultibandTile(bandsDataArray.map { b => UByteArrayTile(b, gridBounds.width, gridBounds.height, ct) })
         } else {
-          val ct = cellType.as[ByteCells with NoDataHandling]
+          val ct = cellType match {
+            case c: ByteCells with NoDataHandling => c
+            case _ => throw new Exception(s"CellType ${cellType} can't be casted to Byte.")
+          }
           MultibandTile(bandsDataArray.map { b => ByteArrayTile(b, gridBounds.width, gridBounds.height, ct) })
         }
       }
@@ -151,14 +157,23 @@ class GDALReader(val dataset: Dataset) {
         }
 
         if (bufferType == gdalconstConstants.GDT_Int16) {
-          val ct = cellType.as[ShortCells with NoDataHandling]
+          val ct = cellType match {
+            case c: ShortCells with NoDataHandling => c
+            case _ => throw new Exception(s"CellType ${cellType} can't be casted to Short.")
+          }
           MultibandTile(shorts.map(ShortArrayTile(_, gridBounds.width, gridBounds.height, ct)))
         } else {
-          val ct = cellType.as[UShortCells with NoDataHandling]
+          val ct = cellType match {
+            case c: UShortCells with NoDataHandling => c
+            case _ => throw new Exception(s"CellType ${cellType} can't be casted to UShort.")
+          }
           MultibandTile(shorts.map(UShortArrayTile(_, gridBounds.width, gridBounds.height, ct)))
         }
       } else if (bufferType == gdalconstConstants.GDT_Int32) {
-        val ct = cellType.as[IntCells with NoDataHandling]
+        val ct = cellType match {
+          case c: IntCells with NoDataHandling => c
+          case _ => throw new Exception(s"CellType ${cellType} can't be casted to Int.")
+        }
 
         val ints = new Array[Array[Int]](bandCount)
         cfor(0)(_ < bandCount, _ + 1) { i =>
@@ -169,7 +184,10 @@ class GDALReader(val dataset: Dataset) {
 
         MultibandTile(ints.map(IntArrayTile(_, gridBounds.width, gridBounds.height, ct)))
       } else if (bufferType == gdalconstConstants.GDT_UInt32 || bufferType == gdalconstConstants.GDT_Float32) {
-        val ct = cellType.as[FloatCells with NoDataHandling]
+        val ct = cellType match {
+          case c: FloatCells with NoDataHandling => c
+          case _ => throw new Exception(s"CellType ${cellType} can't be casted to Float.")
+        }
 
         val floats = new Array[Array[Float]](bandCount)
         cfor(0)(_ < bandCount, _ + 1) { i =>
@@ -180,7 +198,10 @@ class GDALReader(val dataset: Dataset) {
 
         MultibandTile(floats.map(FloatArrayTile(_, gridBounds.width, gridBounds.height, ct)))
       } else if (bufferType == gdalconstConstants.GDT_Float64) {
-        val ct = cellType.as[DoubleCells with NoDataHandling]
+        val ct = cellType match {
+          case c: DoubleCells with NoDataHandling => c
+          case _ => throw new Exception(s"CellType ${cellType} can't be casted to Double.")
+        }
 
         val doubles = new Array[Array[Double]](bandCount)
         cfor(0)(_ < bandCount, _ + 1) { i =>
