@@ -21,8 +21,7 @@ import java.util.Base64
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.vector.Extent
-
-import org.gdal.gdal.{Band, Dataset}
+import org.gdal.gdal.{Band, Dataset, gdal => sgdal}
 import org.gdal.osr.SpatialReference
 
 import scala.util.Try
@@ -125,6 +124,27 @@ package object gdal extends Serializable {
 
     /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
     def crs: Option[CRS] = AnyRef.synchronized(getProjectionRef.flatMap { s => Try { new SpatialReference(s).toCRS }.toOption })
+
+    def cellType: CellType = {
+      val baseBand = self.GetRasterBand(1)
+
+      // we don't have access to the sampleFormat, but we can calculate MinMax values
+      // would be calculated only to derive UByte cell type
+      lazy val minMax = baseBand.computeRasterMinMax
+
+      // sampleFormat
+      val bufferType = baseBand.getDataType
+
+      // bits per sample
+      val typeSizeInBits = sgdal.GetDataTypeSize(bufferType)
+
+      GDALUtils.dataTypeToCellType(
+        datatype       = bufferType,
+        noDataValue    = getNoDataValue,
+        typeSizeInBits = Some(typeSizeInBits),
+        minMaxValues   = minMax
+      )
+    }
   }
 
   implicit class CellTypeMethods(self: CellType) {
