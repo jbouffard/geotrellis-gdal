@@ -4,6 +4,7 @@ import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.raster.testkit._
 import geotrellis.raster.io.geotiff._
+import geotrellis.raster.io.geotiff.reader.GeoTiffReader
 
 import org.scalatest._
 import java.io.File
@@ -13,6 +14,15 @@ class GDALReaderSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalle
 
   describe("reading a GeoTiff") {
     ifGdalInstalled {
+      it("should read full raster correct") {
+        val filePath = s"${new File("").getAbsolutePath()}/src/test/resources/data/aspect-tiled.tif"
+        println(filePath)
+        val gdalTile = GDALReader(filePath).read().toArrayTile
+        val gtTile   = GeoTiffReader.readMultiband(filePath).tile.toArrayTile
+        
+        assertEqual(gdalTile, gtTile)
+      }
+
       val reader = GDALReader(path)
       it("should match one read with GeoTools") {
         println("Reading with GDAL...")
