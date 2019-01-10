@@ -19,10 +19,9 @@ package geotrellis
 import java.util.Base64
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellSize, GridBounds, RasterExtent}
+import geotrellis.raster._
 import geotrellis.vector.Extent
-
-import org.gdal.gdal.{Band, Dataset}
+import org.gdal.gdal.{Band, Dataset, gdal => sgdal}
 import org.gdal.osr.SpatialReference
 
 import scala.util.Try
@@ -58,6 +57,34 @@ package object gdal extends Serializable {
       val arr = Array.ofDim[java.lang.Double](1)
       self.GetNoDataValue(arr)
       arr.headOption.flatMap(Option(_)).map(_.doubleValue())
+    }
+
+    def computeRasterMinMax(approx_ok: Int): Option[(Double, Double)] = {
+      val arr = Array.ofDim[Double](2)
+      self.ComputeRasterMinMax(arr, approx_ok)
+      if (arr.length == 2) Some(arr(0) -> arr(1))
+      else None
+    }
+
+    def computeRasterMinMax: Option[(Double, Double)] = {
+      val arr = Array.ofDim[Double](2)
+      self.ComputeRasterMinMax(arr)
+      if (arr.length == 2) Some(arr(0) -> arr(1))
+      else None
+    }
+
+    def computeBandStats(samplestep: Int): Option[(Double, Double)] = {
+      val arr = Array.ofDim[Double](2)
+      self.ComputeBandStats(arr, samplestep)
+      if (arr.length == 2) Some(arr(0) -> arr(1))
+      else None
+    }
+
+    def computeBandStats: Option[(Double, Double)] = {
+      val arr = Array.ofDim[Double](2)
+      self.ComputeBandStats(arr)
+      if (arr.length == 2) Some(arr(0) -> arr(1))
+      else None
     }
   }
 
@@ -97,5 +124,36 @@ package object gdal extends Serializable {
 
     /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
     def crs: Option[CRS] = AnyRef.synchronized(getProjectionRef.flatMap { s => Try { new SpatialReference(s).toCRS }.toOption })
+
+    def cellType: CellType = {
+      val baseBand = self.GetRasterBand(1)
+
+      // we don't have access to the sampleFormat, but we can calculate MinMax values
+      // would be calculated only to derive UByte cell type
+      lazy val minMax = baseBand.computeRasterMinMax
+
+      // sampleFormat
+      val bufferType = baseBand.getDataType
+
+      // bits per sample
+      val typeSizeInBits = sgdal.GetDataTypeSize(bufferType)
+
+      GDALUtils.dataTypeToCellType(
+        datatype       = bufferType,
+        noDataValue    = getNoDataValue,
+        typeSizeInBits = Some(typeSizeInBits),
+        minMaxValues   = minMax
+      )
+    }
+  }
+
+  implicit class CellTypeMethods(self: CellType) {
+    def isUnsigned: Boolean = {
+      self match {
+        case UByteUserDefinedNoDataCellType(_) | UByteConstantNoDataCellType | UByteCellType |
+             UShortUserDefinedNoDataCellType(_) | UShortConstantNoDataCellType | UShortCellType  => true
+        case _ => false
+      }
+    }
   }
 }
