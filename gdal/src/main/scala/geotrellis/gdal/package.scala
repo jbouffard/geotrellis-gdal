@@ -19,7 +19,7 @@ package geotrellis
 import java.util.Base64
 
 import geotrellis.proj4.CRS
-import geotrellis.raster.{CellSize, GridBounds, RasterExtent}
+import geotrellis.raster._
 import geotrellis.vector.Extent
 
 import org.gdal.gdal.{Band, Dataset}
@@ -59,6 +59,34 @@ package object gdal extends Serializable {
       self.GetNoDataValue(arr)
       arr.headOption.flatMap(Option(_)).map(_.doubleValue())
     }
+
+    def computeRasterMinMax(approx_ok: Int): Option[(Double, Double)] = {
+      val arr = Array.ofDim[Double](2)
+      self.ComputeRasterMinMax(arr, approx_ok)
+      if (arr.length == 2) Some(arr(0) -> arr(1))
+      else None
+    }
+
+    def computeRasterMinMax: Option[(Double, Double)] = {
+      val arr = Array.ofDim[Double](2)
+      self.ComputeRasterMinMax(arr)
+      if (arr.length == 2) Some(arr(0) -> arr(1))
+      else None
+    }
+
+    def computeBandStats(samplestep: Int): Option[(Double, Double)] = {
+      val arr = Array.ofDim[Double](2)
+      self.ComputeBandStats(arr, samplestep)
+      if (arr.length == 2) Some(arr(0) -> arr(1))
+      else None
+    }
+
+    def computeBandStats: Option[(Double, Double)] = {
+      val arr = Array.ofDim[Double](2)
+      self.ComputeBandStats(arr)
+      if (arr.length == 2) Some(arr(0) -> arr(1))
+      else None
+    }
   }
 
   implicit class GDALDatasetMethods(self: Dataset) {
@@ -97,5 +125,17 @@ package object gdal extends Serializable {
 
     /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
     def crs: Option[CRS] = AnyRef.synchronized(getProjectionRef.flatMap { s => Try { new SpatialReference(s).toCRS }.toOption })
+  }
+
+  implicit class CellTypeMethods(self: CellType) {
+    def isUnsigned: Boolean = {
+      self match {
+        case UByteUserDefinedNoDataCellType(_) | UByteConstantNoDataCellType | UByteCellType |
+             UShortUserDefinedNoDataCellType(_) | UShortConstantNoDataCellType | UShortCellType  => true
+        case _ => false
+      }
+    }
+
+    def as[T <: CellType]: T = self.asInstanceOf[T]
   }
 }

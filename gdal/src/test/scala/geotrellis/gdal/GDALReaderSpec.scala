@@ -5,9 +5,10 @@ import geotrellis.raster._
 import geotrellis.raster.testkit._
 import geotrellis.raster.io.geotiff._
 import geotrellis.raster.io.geotiff.reader.GeoTiffReader
-
 import org.scalatest._
 import java.io.File
+
+import geotrellis.vector.Extent
 
 class GDALReaderSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
   val path = s"${new File("").getAbsolutePath()}/src/test/resources/data/slope.tif"
@@ -16,10 +17,21 @@ class GDALReaderSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalle
     ifGdalInstalled {
       it("should read full raster correct") {
         val filePath = s"${new File("").getAbsolutePath()}/src/test/resources/data/aspect-tiled.tif"
-        println(filePath)
         val gdalTile = GDALReader(filePath).read().toArrayTile
         val gtTile   = GeoTiffReader.readMultiband(filePath).tile.toArrayTile
-        
+
+        gdalTile.cellType shouldBe gtTile.cellType
+        assertEqual(gdalTile, gtTile)
+      }
+
+      it("should read a raster with bad nodata value set correct") {
+        val filePath = s"${new File("").getAbsolutePath()}/src/test/resources/data/badnodata.tif"
+        // using a small extent to make tests work faster
+        val ext = Extent(680138.59203, 4904905.667, 680189.7, 4904955.9)
+        val gdalTile = GDALReader(filePath).read(ext).toArrayTile
+        val gtTile   = GeoTiffReader.readMultiband(filePath, ext).tile.toArrayTile
+
+        gdalTile.cellType shouldBe gtTile.cellType
         assertEqual(gdalTile, gtTile)
       }
 
