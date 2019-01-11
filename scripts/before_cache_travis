@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${GEOTRELLIS_DEBUG}" ]]; then
+    set -x
+fi
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0")
+Tricks to avoid unnecessary cache updates on Travis.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        docker-compose \
+            run --rm --no-deps --entrypoint "bash -c" \
+            geotrellis-gdal \
+            "find /root/.sbt -name '*.lock' | xargs rm
+find /root/.ivy2 -name 'ivydata-*.properties' | xargs rm
+rm -f /root/.ivy2/.sbt.ivy.lock
+"
+    fi
+fi

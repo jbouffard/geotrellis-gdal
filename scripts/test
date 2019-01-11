@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${GEOTRELLIS_DEBUG}" ]]; then
+    set -x
+fi
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0")
+Run linting and Scala tests for gdal and gdal-etl.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        # Verify Azavea copyright is up-to-date
+        docker-compose \
+            run --rm --no-deps geotrellis-gdal \
+            "gdal/headerCheck" "gdal-etl/headerCheck"
+
+        # Run Scala tests
+        docker-compose \
+            run --rm --no-deps geotrellis-gdal \
+            "gdal/test" "gdal-etl/test"
+    fi
+fi

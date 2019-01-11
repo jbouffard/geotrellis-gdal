@@ -1,22 +1,34 @@
-sudo: false
-language: scala
-addons:
-  hostname: localhost
-jdk:
-  - oraclejdk8
-scala:
-  - 2.11.12
-  - 2.12.8
-before_install:
-  - docker pull daunnc/openjdk-gdal:2.4.0
+# https://github.com/travis-ci/travis-ci/issues/2856
+language: bash
+
 services:
   - docker
+
+env:
+  - SCALA_VERSION=2.11.12
+  - SCALA_VERSION=2.12.8
+
+# These directories are cached to S3 at the end of the build
 cache:
   directories:
-  - $HOME/.ivy2
-  - $HOME/.sbt
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
+    - $HOME/.coursier/cache/v1
+
 script:
-  - .travis/build-and-test-docker.sh
+  - scripts/test
+
+before_cache:
+  - scripts/before_cache_travis
+
+deploy:
+  provider: script
+  script: scripts/cipublish
+  on:
+    branch:
+      - develop
+      - master
+
 notifications:
   email:
     recipients:
@@ -26,5 +38,3 @@ notifications:
   slack:
     rooms:
       secure: jsY+v/UWRwknxzxuOt3SWUXmfhVm5yE1v1sMtZqM+Vag6vUb8E+oL9XfGYbn7AmYcViP5ZsLPU88rZqwwHg5GgWKfD+34r3C2ZxG+zRybm9q1m3VwsG/ykmHrK47wuSiqBoX4/0rcX86drtL413gQ3bKWt7Vl80ff0AVCw/3wSnQjcHHvfJLBhwUpwD8AX791E8/ITT98+B1+kaIt1Lw13QJ1MsoiIuB8KnfRABA4DIuRkXPAWwr3zt0dcwHqIfrow97KodHQnLr19VU9D7Rfv6pDGRBSMTObXh1/z/4Lk5k+4oDXJhH6wzDDAi5w/2/fb9q0tphx/XCUHolYIJDVNokkJRfoLrvwn2a8iAI/rfqDVjM8nnVIIlYhuodSrlJvgzig7IMCVo4qIp31XJNzNlI5D7OK8Vm7VBEVhm1rUt+d9+oz5vN4KXk4lozQ37vNmRdZzdqvEAeuHWcOSZ/HJE7TG8josCXK/TIvI14wZ+xguPqUlEuHs21EIQQzDxL1pD8VW+DXPvzKca/ZeH+BSYyHHzW+ijkT/Yyr8aGfbofp2aXrLHZdelYejPSHdgiOZVnQcFdMjIqPYHWwHe6V/lo7QvYlbwMg98432Sgne6GKUy96hMT3JHxRKG7E+6XpJ3g4d2U4B286Td1Vbm0pu1hV0HRdrYkgkSO3w1UWC4=
-before_deploy:
-  - export VERSION_SUFFIX="-${TRAVIS_COMMIT:0:7}"
