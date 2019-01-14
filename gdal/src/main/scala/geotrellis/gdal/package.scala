@@ -16,19 +16,22 @@
 
 package geotrellis
 
-import java.util.Base64
-
 import geotrellis.proj4.CRS
 import geotrellis.raster._
 import geotrellis.vector.Extent
+
 import org.gdal.gdal.{Band, Dataset, gdal => sgdal}
 import org.gdal.osr.SpatialReference
+
+import java.security.MessageDigest
+import java.util.Base64
 
 import scala.util.Try
 
 package object gdal extends Serializable {
   implicit class StringMethods(val str: String) extends AnyVal {
     def base64: String = Base64.getEncoder.encodeToString(str.getBytes)
+    def md5: String = MessageDigest.getInstance("MD5").digest(str.getBytes).map("%02x".format(_)).mkString
   }
 
   implicit class GDALWarpOptionsListMethods(val options: List[GDALWarpOptions]) {
@@ -44,6 +47,10 @@ package object gdal extends Serializable {
   }
 
   implicit class GDALWarpOptionOptionsListDatasetDependentMethods(options: Option[(String, List[GDALWarpOptions])]) {
+    val name: String = options.map(_.name).getOrElse("")
+  }
+
+  implicit class GDALWarpOptionsOptionMethods(val options: Option[GDALWarpOptions]) {
     val name: String = options.map(_.name).getOrElse("")
   }
 

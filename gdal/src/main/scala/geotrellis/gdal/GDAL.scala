@@ -37,6 +37,9 @@ private [gdal] object GDALException {
 }
 
 object GDAL extends LazyLogging {
+  // NEL, Dataset is the result VRT and List[Dataset] is a list of parent Datasets
+  type HDataset = (Dataset, List[Dataset])
+
   gdal.AllRegister
 
   // sets GDALConfig options
@@ -81,12 +84,18 @@ object GDAL extends LazyLogging {
   def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions]): Dataset =
     fromGDALWarpOptions(uri, list, GDAL.open(uri))
 
-  def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions], baseDataset: Dataset): Dataset = {
+  def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions], baseDataset: Dataset): Dataset =
+    fromGDALWarpOptionsH(uri, list, baseDataset)._1
+
+  def fromGDALWarpOptionsH(uri: String, list: List[GDALWarpOptions]): HDataset =
+    fromGDALWarpOptionsH(uri, list, GDAL.open(uri))
+
+  def fromGDALWarpOptionsH(uri: String, list: List[GDALWarpOptions], baseDataset: Dataset): HDataset = {
     // if we want to perform warp operations
     if (list.nonEmpty) {
       // let's find the latest cached dataset, once we'll find smth let's stop
       val Left(Some(dataset)) =
-        list.zipWithIndex.reverse.foldLeftM(Option.empty[Dataset]) { case (acc, (_, idx)) =>
+        list.zipWithIndex.reverse.foldLeftM(Option.empty[HDataset]) { case (acc, (_, idx)) =>
           acc match {
             // successful dataset retrive, in case for some reason there is smth non empty
             case ds @ Some(_) => Left(ds)
@@ -94,19 +103,46 @@ object GDAL extends LazyLogging {
             // we haven't read anything
             case None =>
               if (idx == 0) {
-                Left(Option(list.zipWithIndex.foldLeft(baseDataset) { case (ds, (ops, index)) =>
-                  warp("", ds, ops, (uri, list.take(index)).some)
+                Left(Option(list.zipWithIndex.foldLeft(baseDataset -> List[Dataset](baseDataset)) { case ((ds, dsh), (ops, index)) =>
+                  val res = warp("", ds, ops, (uri, list.take(index)).some)
+                  val history = if(index != list.length - 1) dsh :+ res else dsh
+                  (res, history)
                 }))
               } else {
-                val result = cache.getIfPresent((uri, list.take(idx)).name).map { c => list.drop(idx).foldLeft(c) { warp("", _, _, (uri, list.drop(idx)).some) } }
-                if (result.isEmpty) Right(result)
+                val key = {
+                  val allWarpOptions = list.take(idx + 1)
+                  val parentWarpOptions = Some((uri, allWarpOptions.take(idx)))
+                  val warpOptions = allWarpOptions.last
+
+                  s"${parentWarpOptions.name}${warpOptions.name}".base64
+                }
+                val result: Option[HDataset] = cache.getIfPresent(key).map { base =>
+                  // build new Datasets that are not in cache
+                  val (dataset, newHistory): HDataset =
+                    list.drop(idx).foldLeft(base -> List[Dataset](base)) { case ((ds, dsh), ops) =>
+                      val res = warp("", ds, ops, (uri, list.drop(idx)).some)
+                      (res, dsh :+ res)
+                    }
+
+                  // get all the history data
+                  val history: List[Dataset] = list.take(idx).zipWithIndex.flatMap { case (_, index) =>
+                    cache.getIfPresent((uri, list.take(index + 1).reverse).name.base64)
+                  }
+
+                  // drop head to have an expected behavior
+                  (dataset, history ::: newHistory.take(newHistory.length - 1))
+                }
+                if (result.isEmpty) {
+
+                  Right(result)
+                }
                 else Left(result)
               }
           }
         }
 
       dataset
-    } else baseDataset
+    } else baseDataset -> List[Dataset]()
   }
 
   GDALCacheConfig.addShutdownHook

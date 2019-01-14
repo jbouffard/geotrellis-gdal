@@ -45,7 +45,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
       List(-9999.0),
       Nil,
       Some(AutoHigherResolution),
-      List("SRC_METHOD" -> "NO_GEOTRANSFORM"), false, None, false, false, false, None, Nil, None, None, false, false,
+      Nil, false, None, false, false, false, None, Nil, None, None, false, false,
       false, None, false, false, Nil, None, None, None, None, None, false, false, false, None, false, Nil, Nil, Nil, None
     )
 
@@ -127,6 +127,74 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
 
         parellSpec(i)
       }
+    }
+  }
+
+  describe("GDALDataset from GDALWarpOptions build test") {
+    it("should build and keep history, nothing stored in the Dataset pool case") {
+      val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan)
+
+      history shouldNot contain (result)
+      history.length shouldBe vrtPlan.length
+      GDAL.cacheCleanUp
+    }
+
+    it("should build and keep history, only initial Dataset is stored in the Dataset pool case") {
+      val baseDataset = GDAL.open(filePath)
+      val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
+
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
+
+      history shouldNot contain (result)
+      history.length shouldBe vrtPlan.length
+      GDAL.cacheCleanUp
+    }
+
+    it("should build and keep history, two Datasets are stored in the Dataset pool case") {
+      val baseDataset = GDAL.open(filePath)
+      val firstVRT = GDAL.warp("", baseDataset, GDALWarpOptions(), Some(filePath, Nil))
+      val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
+
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
+
+      history shouldNot contain (result)
+      history should contain (firstVRT)
+      history.length shouldBe vrtPlan.length
+      GDAL.cacheCleanUp
+    }
+
+    it("should build and keep history, three Datasets are stored in the Dataset pool case") {
+      val baseDataset = GDAL.open(filePath)
+      val firstVRT = GDAL.warp("", baseDataset, GDALWarpOptions(), Some(filePath, Nil))
+      val secondVRT = GDAL.warp("", firstVRT, reprojectOptions, Some(filePath, List(GDALWarpOptions())))
+
+      val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
+
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
+
+      history shouldNot contain (result)
+      history should contain (firstVRT)
+      history should contain (secondVRT)
+      history.length shouldBe vrtPlan.length
+      GDAL.cacheCleanUp
+    }
+
+    it("should build and keep history, four Datasets are stored in the Dataset pool case") {
+      val baseDataset = GDAL.open(filePath)
+      val firstVRT = GDAL.warp("", baseDataset, GDALWarpOptions(), Some(filePath, Nil))
+      val secondVRT = GDAL.warp("", firstVRT, reprojectOptions, Some(filePath, List(GDALWarpOptions())))
+      val thirdVRT = GDAL.warp("", secondVRT, resampleOptions, Some(filePath, List(GDALWarpOptions(), reprojectOptions)))
+      val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions, resampleOptions)
+
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
+
+      history shouldNot contain (result)
+      history should contain (firstVRT)
+      history should contain (secondVRT)
+      history should contain (thirdVRT)
+      history.length shouldBe vrtPlan.length
+      GDAL.cacheCleanUp
     }
   }
 }
