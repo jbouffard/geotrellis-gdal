@@ -78,7 +78,10 @@ object GDAL extends LazyLogging {
   def warp(dest: String, baseDataset: Dataset, warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset =
     warp(dest, Array(baseDataset), warpOptions, parentWarpOptions)
 
-  def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions]): Dataset = {
+  def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions]): Dataset =
+    fromGDALWarpOptions(uri, list, GDAL.open(uri))
+
+  def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions], baseDataset: Dataset): Dataset = {
     // if we want to perform warp operations
     if (list.nonEmpty) {
       // let's find the latest cached dataset, once we'll find smth let's stop
@@ -91,7 +94,7 @@ object GDAL extends LazyLogging {
             // we haven't read anything
             case None =>
               if (idx == 0) {
-                Left(Option(list.zipWithIndex.foldLeft(open(uri)) { case (ds, (ops, index)) =>
+                Left(Option(list.zipWithIndex.foldLeft(baseDataset) { case (ds, (ops, index)) =>
                   warp("", ds, ops, (uri, list.take(index)).some)
                 }))
               } else {
@@ -103,7 +106,7 @@ object GDAL extends LazyLogging {
         }
 
       dataset
-    } else open(uri) // just open a GDAL dataset
+    } else baseDataset
   }
 
   GDALCacheConfig.addShutdownHook
