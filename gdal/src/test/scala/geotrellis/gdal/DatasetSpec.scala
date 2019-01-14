@@ -130,7 +130,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
     }
   }
 
-  describe("GDALDataset from GDALWarpOptions build test") {
+  describe("Dataset fromGDALWarpOptionsH build test") {
     it("should build and keep history, nothing stored in the Dataset pool case") {
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
       val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan)
