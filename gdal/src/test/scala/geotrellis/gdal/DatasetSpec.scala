@@ -70,11 +70,11 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
   def dsreproject(dataset: Dataset): Dataset = GDAL.warp("", dataset, reprojectOptions, None)
   def dsresample(dataset: Dataset, uri: Option[String]): Dataset = GDAL.warp("", dataset, resampleOptions, uri.map(str => str -> List(reprojectOptions)))
 
-  def parellSpec(n: Int = 1000)(implicit cs: ContextShift[IO]): Unit = {
+  def parellSpec(n: Int = 1000)(implicit cs: ContextShift[IO]): List[(Dataset, Dataset, Dataset)] = {
     println(java.lang.Thread.activeCount())
 
     // to make it work with weak refs we have to remember all the datasets
-    (1 to n).toList.flatMap { _ =>
+    val res = (1 to n).toList.flatMap { _ =>
       (0 to 4).flatMap { i =>
         val path = filePathByIndex(i)
         List(IO {
@@ -97,9 +97,11 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
           (fst, dst, trd)
         })
       }
-    }.parSequence.void.unsafeRunSync
+    }.parSequence.unsafeRunSync
 
     println(java.lang.Thread.activeCount())
+
+    res
   }
 
   describe("GDALDatasetSpec") {
@@ -115,7 +117,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
         val i = 1000
         implicit val cs = IO.contextShift(ExecutionContext.global)
 
-        parellSpec(i)
+        val res = parellSpec(i)
       }
 
       it("GDAL.open multithreaded test fixed thread pool") {
@@ -125,7 +127,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
         val ec = ExecutionContext.fromExecutor(pool)
         implicit val cs = IO.contextShift(ec)
 
-        parellSpec(i)
+        val res = parellSpec(i)
       }
     }
   }
