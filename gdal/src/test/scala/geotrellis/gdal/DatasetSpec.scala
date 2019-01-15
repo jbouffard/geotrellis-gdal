@@ -67,8 +67,8 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
       false, None, false, false, Nil, None, None, None, None, None, false, false, false, None, false, Nil, Nil, Nil, None
     )
 
-  def dsreproject(dataset: Dataset): Dataset = GDAL.warp("", dataset, reprojectOptions, None)
-  def dsresample(dataset: Dataset, uri: Option[String]): Dataset = GDAL.warp("", dataset, resampleOptions, uri.map(str => str -> List(reprojectOptions)))
+  def dsreproject(dataset: Dataset): Dataset = GDAL.warp(None, dataset, reprojectOptions, None)
+  def dsresample(dataset: Dataset, uri: Option[String]): Dataset = GDAL.warp(None, dataset, resampleOptions, uri.map(str => str -> List(reprojectOptions)))
 
   def parellSpec(n: Int = 1000)(implicit cs: ContextShift[IO]): List[(Dataset, Dataset, Dataset)] = {
     println(java.lang.Thread.activeCount())
@@ -146,7 +146,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
       val baseDataset = GDAL.open(filePath)
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
 
-      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset, persistent = false)
 
       history shouldNot contain (result)
       history.length shouldBe vrtPlan.length
@@ -155,10 +155,10 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
 
     it("should build and keep history, two Datasets are stored in the Dataset pool case") {
       val baseDataset = GDAL.open(filePath)
-      val firstVRT = GDAL.warp("", baseDataset, GDALWarpOptions(), Some(filePath, Nil))
+      val firstVRT = GDAL.warp(None, baseDataset, GDALWarpOptions(), Some(filePath, Nil))
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
 
-      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset, persistent = false)
 
       history shouldNot contain (result)
       history should contain (firstVRT)
@@ -168,12 +168,12 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
 
     it("should build and keep history, three Datasets are stored in the Dataset pool case") {
       val baseDataset = GDAL.open(filePath)
-      val firstVRT = GDAL.warp("", baseDataset, GDALWarpOptions(), Some(filePath, Nil))
-      val secondVRT = GDAL.warp("", firstVRT, reprojectOptions, Some(filePath, List(GDALWarpOptions())))
+      val firstVRT = GDAL.warp(None, baseDataset, GDALWarpOptions(), Some(filePath, Nil))
+      val secondVRT = GDAL.warp(None, firstVRT, reprojectOptions, Some(filePath, List(GDALWarpOptions())))
 
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
 
-      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset, persistent = false)
 
       history shouldNot contain (result)
       history should contain (firstVRT)
@@ -184,12 +184,12 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
 
     it("should build and keep history, four Datasets are stored in the Dataset pool case") {
       val baseDataset = GDAL.open(filePath)
-      val firstVRT = GDAL.warp("", baseDataset, GDALWarpOptions(), Some(filePath, Nil))
-      val secondVRT = GDAL.warp("", firstVRT, reprojectOptions, Some(filePath, List(GDALWarpOptions())))
-      val thirdVRT = GDAL.warp("", secondVRT, resampleOptions, Some(filePath, List(GDALWarpOptions(), reprojectOptions)))
+      val firstVRT = GDAL.warp(None, baseDataset, GDALWarpOptions(), Some(filePath, Nil))
+      val secondVRT = GDAL.warp(None, firstVRT, reprojectOptions, Some(filePath, List(GDALWarpOptions())))
+      val thirdVRT = GDAL.warp(None, secondVRT, resampleOptions, Some(filePath, List(GDALWarpOptions(), reprojectOptions)))
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions, resampleOptions)
 
-      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset, persistent = false)
 
       history shouldNot contain (result)
       history should contain (firstVRT)
