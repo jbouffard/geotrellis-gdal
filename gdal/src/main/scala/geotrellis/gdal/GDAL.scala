@@ -40,9 +40,6 @@ object GDAL extends LazyLogging {
   // NEL, Dataset is the result VRT and List[Dataset] is a list of parent Datasets
   type HDataset = (Dataset, List[Dataset])
 
-  // Store temporary VRT XML files in this temporary directory
-  val tmpDir: String = System.getProperty("java.io.tmpdir")
-
   gdal.AllRegister
 
   // sets GDALConfig options
@@ -71,18 +68,17 @@ object GDAL extends LazyLogging {
 
   // parentWarpOptions is a tuple of a path to the initial dataset and a list of previous transformations
   // it is required to calculate a proper cache key
-  private def warp(dest: Option[String], baseDatasets: Array[Dataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset = AnyRef.synchronized {
+  private def warp(dest: String, baseDatasets: Array[Dataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset = AnyRef.synchronized {
     // current warp key
     val key = s"${parentWarpOptions.name}${warpOptions.name}".md5
-    val destString = dest.getOrElse(s"$tmpDir$key.vrt")
     // put parent into the strong cache
-    lazy val getDS = gdal.Warp(destString, baseDatasets, warpOptions.toWarpOptions)
+    lazy val getDS = gdal.Warp(dest, baseDatasets, warpOptions.toWarpOptions)
     val ds = cache.get(key.md5, _ => getDS)
     if(ds == null) throw GDALException.lastError()
     ds
   }
 
-  def warp(dest: Option[String], baseDataset: Dataset, warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset =
+  def warp(dest: String, baseDataset: Dataset, warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset =
     warp(dest, Array(baseDataset), warpOptions, parentWarpOptions)
 
   def fromGDALWarpOptions(uri: String, list: List[GDALWarpOptions]): Dataset =
@@ -108,7 +104,7 @@ object GDAL extends LazyLogging {
             case None =>
               if (idx == 0) {
                 Left(Option(list.zipWithIndex.foldLeft(baseDataset -> List[Dataset](baseDataset)) { case ((ds, dsh), (ops, index)) =>
-                  val res = warp(if(persistent) None else "".some, ds, ops, (uri, list.take(index)).some)
+                  val res = warp("", ds, ops, (uri, list.take(index)).some)
                   val history = if(index != list.length - 1) dsh :+ res else dsh
                   (res, history)
                 }))
@@ -124,7 +120,7 @@ object GDAL extends LazyLogging {
                   // build new Datasets that are not in cache
                   val (dataset, newHistory): HDataset =
                     list.drop(idx).foldLeft(base -> List[Dataset](base)) { case ((ds, dsh), ops) =>
-                      val res = warp(if(persistent) None else "".some, ds, ops, (uri, list.drop(idx)).some)
+                      val res = warp("", ds, ops, (uri, list.drop(idx)).some)
                       (res, dsh :+ res)
                     }
 
