@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${GEOTRELLIS_DEBUG}" ]]; then
+    set -x
+fi
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0")
+Build and publish gdal and gdal-etl artifacts to Bintray or oss.jfrog.org (OJO).
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        docker-compose \
+            run --rm --no-deps geotrellis-gdal \
+            "gdal/publish" "gdal-etl/publish"
+    fi
+fi
