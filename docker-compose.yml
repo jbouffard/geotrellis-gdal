@@ -5,11 +5,10 @@ services:
     environment:
       - BINTRAY_USER=$BINTRAY_USER
       - BINTRAY_PASS=$BINTRAY_PASS
-      - SCALA_VERSION=${SCALA_VERSION:-2.11.12}
     volumes:
       - ${TRAVIS_BUILD_DIR:-./}:/opt/geotrellis-gdal
       - $HOME/.ivy2:/root/.ivy2
       - $HOME/.sbt:/root/.sbt
       - $HOME/.coursier:/root/.coursier
     working_dir: /opt/geotrellis-gdal
-    entrypoint: ./sbt "++$SCALA_VERSION"
+    entrypoint: ./sbt "++${SCALA_VERSION:-2.11.12}"
