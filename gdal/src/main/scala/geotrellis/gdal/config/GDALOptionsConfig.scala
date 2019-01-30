@@ -18,15 +18,27 @@ package geotrellis.gdal.config
 
 import org.gdal.gdal.gdal
 
-case class GDALOptionsConfig(maxDatasetPoolSize: Int = 100, vrtSharedSource: Boolean = false, cplDebug: String = "OFF", useExceptions: Boolean = true) {
-  def setMaxDatasetPoolSize: Unit = gdal.SetConfigOption("GDAL_MAX_DATASET_POOL_SIZE", s"$maxDatasetPoolSize")
-  def setVRTSharedSource: Unit = gdal.SetConfigOption("VRT_SHARED_SOURCE", s"${ if(vrtSharedSource) 1 else 0 }")
-  def setCPLDebugMode: Unit = gdal.SetConfigOption("CPL_DEBUG", cplDebug)
+import scala.collection.concurrent.TrieMap
+
+case class GDALOptionsConfig(options: Map[String, String] = Map(), useExceptions: Boolean = true) {
   def setUseExceptions: Unit = if(useExceptions) gdal.UseExceptions()
-  def set: Unit = { setMaxDatasetPoolSize; setVRTSharedSource; setCPLDebugMode; setUseExceptions }
+  def set: Unit = {
+    // register first config options from the conf file
+    options.foreach { case (key, value) => gdal.SetConfigOption(key, value) }
+    // register programmatically set options
+    GDALOptionsConfig.setRegistryOptions
+    // set exceptions handling mode
+    setUseExceptions
+  }
 }
 
-object GDALOptionsConfig extends PureConfigSettings {
-  lazy val conf: GDALOptionsConfig = pureconfig.loadConfigOrThrow[GDALOptionsConfig]("gdal.options")
+object GDALOptionsConfig extends PureConfigSettings with Serializable {
+  private val optionsRegistry = TrieMap[String, String]()
+
+  def registerOption(key: String, value: String): Unit = optionsRegistry += (key -> value)
+  def registerOptions(seq: (String, String)*): Unit = seq.foreach(optionsRegistry += _)
+  def setRegistryOptions: Unit = optionsRegistry.foreach { case (key, value) => gdal.SetConfigOption(key, value) }
+
+  lazy val conf: GDALOptionsConfig = pureconfig.loadConfigOrThrow[GDALOptionsConfig]("gdal.settings")
   implicit def gdalOptionsConfig(obj: GDALOptionsConfig.type): GDALOptionsConfig = conf
 }
