@@ -28,6 +28,8 @@ import org.gdal.gdal.{Dataset, gdal}
 import org.gdal.gdalconst.gdalconstConstants
 import com.typesafe.scalalogging.LazyLogging
 
+import scala.collection.JavaConverters._
+
 import java.net.URI
 
 private [gdal] case class GDALException(code: Int, msg: String) extends RuntimeException(s"GDAL ERROR $code: $msg")
@@ -59,8 +61,10 @@ object GDAL extends LazyLogging {
   /** We may want to force invalidate caches, in case we don't trust GC too much */
   def cacheCleanUp: Unit = cache.invalidateAll()
 
-  def openPath(path: String): Dataset = AnyRef.synchronized {
-    lazy val getDS = gdal.Open(path, gdalconstConstants.GA_ReadOnly)
+  def openPath(path: String, options: Vector[_] = Vector()): Dataset = AnyRef.synchronized {
+    val vector = new java.util.Vector[Any]()
+    vector.addAll(options.asJavaCollection)
+    lazy val getDS = gdal.OpenEx(path, gdalconstConstants.GA_ReadOnly, vector)
     val ds = cache.get(path.md5, _ => getDS)
     if(ds == null) throw GDALException.lastError()
     ds
@@ -122,9 +126,9 @@ object GDAL extends LazyLogging {
   }
 
   def fromGDALWarpOptionsH(uri: String, list: List[GDALWarpOptions]): HDataset =
-    fromGDALWarpOptionsH(uri, list, GDAL.open(uri), persistent = false)
+    fromGDALWarpOptionsH(uri, list, GDAL.open(uri))
 
-  def fromGDALWarpOptionsH(uri: String, list: List[GDALWarpOptions], baseDataset: Dataset, persistent: Boolean): HDataset = {
+  def fromGDALWarpOptionsH(uri: String, list: List[GDALWarpOptions], baseDataset: Dataset): HDataset = {
     // if we want to perform warp operations
     if (list.nonEmpty) {
       // let's find the latest cached dataset, once we'll find smth let's stop

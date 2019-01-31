@@ -146,7 +146,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
       val baseDataset = GDAL.open(filePath)
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
 
-      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset, persistent = false)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
 
       history shouldNot contain (result)
       history.length shouldBe vrtPlan.length
@@ -158,7 +158,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
       val firstVRT = GDAL.warp("", baseDataset, GDALWarpOptions(), Some(filePath, Nil))
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
 
-      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset, persistent = false)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
 
       history shouldNot contain (result)
       history should contain (firstVRT)
@@ -173,7 +173,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
 
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions)
 
-      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset, persistent = false)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
 
       history shouldNot contain (result)
       history should contain (firstVRT)
@@ -189,7 +189,7 @@ class DatasetSpec extends FunSpec with RasterMatchers with OnlyIfGdalInstalled {
       val thirdVRT = GDAL.warp("", secondVRT, resampleOptions, Some(filePath, List(GDALWarpOptions(), reprojectOptions)))
       val vrtPlan = List(GDALWarpOptions(), reprojectOptions, resampleOptions, resampleOptions)
 
-      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset, persistent = false)
+      val (result, history) = GDAL.fromGDALWarpOptionsH(filePath, vrtPlan, baseDataset)
 
       history shouldNot contain (result)
       history should contain (firstVRT)
