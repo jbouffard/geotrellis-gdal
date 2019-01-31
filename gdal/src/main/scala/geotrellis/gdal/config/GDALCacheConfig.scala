@@ -21,6 +21,7 @@ import geotrellis.gdal.cache.LazyCache
 
 import org.gdal.gdal.Dataset
 import com.github.blemale.scaffeine.Scaffeine
+import com.github.benmanes.caffeine.cache.RemovalCause
 import com.typesafe.scalalogging.LazyLogging
 
 case class GDALCacheConfig(
@@ -42,7 +43,14 @@ case class GDALCacheConfig(
       if (enableDefaultRemovalListener)
         cache.removalListener[String, Dataset] { case (key, dataset, event) =>
           logger.debug(s"removalListener: ${key}-${dataset} event: $event")
-          if (dataset != null) dataset.delete
+
+          event match {
+            // in case it's an explicit removal, clean it up manually (mostly it will be called by the JVM shutdown hook)
+            // otherwise GC will close resource in the finalization stage
+            case RemovalCause.EXPLICIT if dataset != null => dataset.delete
+            // suppress warning
+            case _ =>
+          }
         }
 
       cache.build[String, Dataset]
