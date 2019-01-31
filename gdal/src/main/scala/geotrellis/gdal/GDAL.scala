@@ -122,9 +122,9 @@ object GDAL extends LazyLogging {
   }
 
   def fromGDALWarpOptionsH(uri: String, list: List[GDALWarpOptions]): HDataset =
-    fromGDALWarpOptionsH(uri, list, GDAL.open(uri), persistent = false)
+    fromGDALWarpOptionsH(uri, list, GDAL.open(uri))
 
-  def fromGDALWarpOptionsH(uri: String, list: List[GDALWarpOptions], baseDataset: Dataset, persistent: Boolean): HDataset = {
+  def fromGDALWarpOptionsH(uri: String, list: List[GDALWarpOptions], baseDataset: Dataset): HDataset = {
     // if we want to perform warp operations
     if (list.nonEmpty) {
       // let's find the latest cached dataset, once we'll find smth let's stop
