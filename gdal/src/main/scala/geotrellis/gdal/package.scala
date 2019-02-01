@@ -75,28 +75,28 @@ package object gdal extends Serializable {
       arr.headOption.flatMap(Option(_)).map(_.doubleValue())
     }
 
-    def computeRasterMinMax(approx_ok: Int): Option[(Double, Double)] = {
+    def computeRasterMinMax(approx_ok: Int): Option[(Double, Double)] = AnyRef.synchronized {
       val arr = Array.ofDim[Double](2)
       self.ComputeRasterMinMax(arr, approx_ok)
       if (arr.length == 2) Some(arr(0) -> arr(1))
       else None
     }
 
-    def computeRasterMinMax: Option[(Double, Double)] = {
+    def computeRasterMinMax: Option[(Double, Double)] = AnyRef.synchronized {
       val arr = Array.ofDim[Double](2)
       self.ComputeRasterMinMax(arr)
       if (arr.length == 2) Some(arr(0) -> arr(1))
       else None
     }
 
-    def computeBandStats(samplestep: Int): Option[(Double, Double)] = {
+    def computeBandStats(samplestep: Int): Option[(Double, Double)] = AnyRef.synchronized {
       val arr = Array.ofDim[Double](2)
       self.ComputeBandStats(arr, samplestep)
       if (arr.length == 2) Some(arr(0) -> arr(1))
       else None
     }
 
-    def computeBandStats: Option[(Double, Double)] = {
+    def computeBandStats: Option[(Double, Double)] = AnyRef.synchronized {
       val arr = Array.ofDim[Double](2)
       self.ComputeBandStats(arr)
       if (arr.length == 2) Some(arr(0) -> arr(1))
