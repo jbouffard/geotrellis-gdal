@@ -25,10 +25,20 @@ import org.gdal.osr.SpatialReference
 
 import java.security.MessageDigest
 import java.util.Base64
+import java.util.{Vector => JVector}
 
 import scala.util.Try
+import scala.collection.JavaConverters._
 
 package object gdal extends Serializable {
+  implicit class withVectorMethods[T](vector: Vector[T]) {
+    def asJava: JVector[Any] = {
+      val vec = new java.util.Vector[Any]()
+      vec.addAll(vector.asJavaCollection)
+      vec
+    }
+  }
+
   implicit class StringMethods(val str: String) extends AnyVal {
     def base64: String = Base64.getEncoder.encodeToString(str.getBytes)
     def md5: String = MessageDigest.getInstance("MD5").digest(str.getBytes).map("%02x".format(_)).mkString
