@@ -82,7 +82,7 @@ object GDAL extends LazyLogging {
 
   // parentWarpOptions is a tuple of a path to the initial dataset and a list of previous transformations
   // it is required to calculate a proper cache key
-  private def warp(dest: String, baseDatasets: Array[Dataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset = AnyRef.synchronized {
+  private def warp(dest: String, baseDatasets: Array[Dataset], warpOptions: GDALWarpOptions, parentWarpOptions: Option[(String, List[GDALWarpOptions])]): Dataset = {
     // current warp key
     val key = s"${parentWarpOptions.name}${warpOptions.name}".md5
     // put parent into the strong cache

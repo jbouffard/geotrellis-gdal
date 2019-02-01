@@ -65,39 +65,38 @@ package object gdal extends Serializable {
   }
 
   implicit class GDALSpatialReference(self: SpatialReference) {
-    /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
-    def toCRS: CRS = AnyRef.synchronized(CRS.fromString(self.ExportToProj4))
+    def toCRS: CRS = CRS.fromString(self.ExportToProj4)
   }
 
   implicit class GDALRasterBandMethods(self: Band) {
-    def getNoDataValue: Option[Double] = AnyRef.synchronized {
+    def getNoDataValue: Option[Double] = {
       val arr = Array.ofDim[java.lang.Double](1)
       self.GetNoDataValue(arr)
       arr.headOption.flatMap(Option(_)).map(_.doubleValue())
     }
 
-    def computeRasterMinMax(approx_ok: Int): Option[(Double, Double)] = AnyRef.synchronized {
+    def computeRasterMinMax(approx_ok: Int): Option[(Double, Double)] = {
       val arr = Array.ofDim[Double](2)
       self.ComputeRasterMinMax(arr, approx_ok)
       if (arr.length == 2) Some(arr(0) -> arr(1))
       else None
     }
 
-    def computeRasterMinMax: Option[(Double, Double)] = AnyRef.synchronized {
+    def computeRasterMinMax: Option[(Double, Double)] = {
       val arr = Array.ofDim[Double](2)
       self.ComputeRasterMinMax(arr)
       if (arr.length == 2) Some(arr(0) -> arr(1))
       else None
     }
 
-    def computeBandStats(samplestep: Int): Option[(Double, Double)] = AnyRef.synchronized {
+    def computeBandStats(samplestep: Int): Option[(Double, Double)] = {
       val arr = Array.ofDim[Double](2)
       self.ComputeBandStats(arr, samplestep)
       if (arr.length == 2) Some(arr(0) -> arr(1))
       else None
     }
 
-    def computeBandStats: Option[(Double, Double)] = AnyRef.synchronized {
+    def computeBandStats: Option[(Double, Double)] = {
       val arr = Array.ofDim[Double](2)
       self.ComputeBandStats(arr)
       if (arr.length == 2) Some(arr(0) -> arr(1))
@@ -107,22 +106,24 @@ package object gdal extends Serializable {
 
   implicit class GDALDatasetMethods(self: Dataset) {
     def getRasterBands: List[Band] = (1 until self.GetRasterCount()).map(self.GetRasterBand).toList
+
+    /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
     def getProjectionRef: Option[String] = AnyRef.synchronized(Option(self.GetProjectionRef))
+    def getProjection: Option[String] = AnyRef.synchronized(Option(self.GetProjection))
 
     def getNoDataValue: Option[Double] = self.GetRasterBand(1).getNoDataValue
 
     lazy val extent: Extent = Extent(xmin, ymin, xmax, ymax)
 
-    lazy val rasterExtent: RasterExtent = AnyRef.synchronized {
+    lazy val rasterExtent: RasterExtent = {
       if(self.GetRasterXSize * self.GetRasterYSize > Int.MaxValue)
         sys.error(s"Cannot read this raster, cols * rows exceeds maximum array index (${self.GetRasterXSize} * ${self.GetRasterYSize})")
 
       RasterExtent(extent, self.GetRasterXSize, self.GetRasterYSize)
     }
 
-    lazy val gridBounds: GridBounds = AnyRef.synchronized { GridBounds(0, 0, self.GetRasterXSize - 1, self.GetRasterYSize - 1) }
+    lazy val gridBounds: GridBounds = GridBounds(0, 0, self.GetRasterXSize - 1, self.GetRasterYSize - 1)
 
-    /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
     lazy val geoTransform: Array[Double] = AnyRef.synchronized(self.GetGeoTransform)
 
     lazy val xmin: Double = geoTransform(0)
@@ -135,8 +136,7 @@ package object gdal extends Serializable {
 
     lazy val cellSize: CellSize = CellSize(geoTransform(1), math.abs(geoTransform(5)))
 
-    /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
-    def crs: Option[CRS] = AnyRef.synchronized(getProjectionRef.flatMap { s => Try { new SpatialReference(s).toCRS }.toOption })
+    def crs: Option[CRS] = getProjectionRef.flatMap { s => Try { new SpatialReference(s).toCRS }.toOption }
 
     def cellType: CellType = {
       val baseBand = self.GetRasterBand(1)
