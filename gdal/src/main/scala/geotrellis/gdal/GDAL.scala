@@ -28,8 +28,6 @@ import org.gdal.gdal.{Dataset, gdal}
 import org.gdal.gdalconst.gdalconstConstants
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.collection.JavaConverters._
-
 import java.net.URI
 
 private [gdal] case class GDALException(code: Int, msg: String) extends RuntimeException(s"GDAL ERROR $code: $msg")
@@ -61,10 +59,22 @@ object GDAL extends LazyLogging {
   /** We may want to force invalidate caches, in case we don't trust GC too much */
   def cacheCleanUp: Unit = cache.invalidateAll()
 
-  def openPath(path: String, options: Vector[_] = Vector()): Dataset = AnyRef.synchronized {
-    val vector = new java.util.Vector[Any]()
-    vector.addAll(options.asJavaCollection)
-    lazy val getDS = gdal.OpenEx(path, gdalconstConstants.GA_ReadOnly, vector)
+  def openPath(path: String, nOpenFlags: Long, allowedDrivers: Vector[_], openOptions: Vector[_], siblingFiles: Vector[_]): Dataset =
+    openPathDS(path, gdal.OpenEx(path, nOpenFlags, allowedDrivers.asJava, openOptions.asJava, siblingFiles.asJava))
+
+  def openPath(path: String, nOpenFlags: Long, allowedDrivers: Vector[_], openOptions: Vector[_]): Dataset =
+    openPathDS(path, gdal.OpenEx(path, nOpenFlags, allowedDrivers.asJava, openOptions.asJava))
+
+  def openPath(path: String, nOpenFlags: Long, allowedDrivers: Vector[_]): Dataset =
+    openPathDS(path, gdal.OpenEx(path, nOpenFlags, allowedDrivers.asJava))
+
+  def openPath(path: String, nOpenFlags: Long): Dataset =
+    openPathDS(path, gdal.OpenEx(path, nOpenFlags))
+
+  def openPath(path: String): Dataset =
+    openPathDS(path, gdal.OpenEx(path, gdalconstConstants.GA_ReadOnly))
+
+  private def openPathDS(path: String, getDS: => Dataset): Dataset = {
     val ds = cache.get(path.md5, _ => getDS)
     if(ds == null) throw GDALException.lastError()
     ds
