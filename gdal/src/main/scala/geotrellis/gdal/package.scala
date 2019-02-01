@@ -107,7 +107,7 @@ package object gdal extends Serializable {
   implicit class GDALDatasetMethods(self: Dataset) {
     def getRasterBands: List[Band] = (1 until self.GetRasterCount()).map(self.GetRasterBand).toList
 
-    /**OSR objects and all related to it methods are not threadsafe */
+    /** GetGeoTransform, OSR objects and all related to it methods are not threadsafe */
     def getProjectionRef: Option[String] = AnyRef.synchronized(Option(self.GetProjectionRef))
     def getProjection: Option[String] = AnyRef.synchronized(Option(self.GetProjection))
 
@@ -124,7 +124,7 @@ package object gdal extends Serializable {
 
     lazy val gridBounds: GridBounds = GridBounds(0, 0, self.GetRasterXSize - 1, self.GetRasterYSize - 1)
 
-    lazy val geoTransform: Array[Double] = self.GetGeoTransform
+    lazy val geoTransform: Array[Double] = AnyRef.synchronized(self.GetGeoTransform)
 
     lazy val xmin: Double = geoTransform(0)
 
