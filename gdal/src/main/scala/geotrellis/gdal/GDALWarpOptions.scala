@@ -172,8 +172,8 @@ case class GDALWarpOptions(
         "-te", s"${ext.xmin}", s"${ext.ymin}", s"${ext.xmax}", s"${ext.ymax}",
         "-te_srs", s"${crs.toProj4String}"
       )
-    } ::: { if(srcNoData.nonEmpty) { "-srcnodata" +: srcNoData.map(_.toString) } else Nil } :::
-    { if(dstNoData.nonEmpty) { "-dstnodata" +: srcNoData.map(_.toString) } else Nil } :::
+    } ::: { if(srcNoData.nonEmpty) "-srcnodata" +: srcNoData else Nil } :::
+    { if(dstNoData.nonEmpty) "-dstnodata" +: dstNoData else Nil } :::
     { if(to.nonEmpty) { "-to" +: to.map { case (k, v) => s"$k=$v" } } else Nil } :::
     { if(novShiftGrid) List("-novshiftgrid") else Nil } :::
     order.toList.flatMap { n => List("-order", s"$n") } :::
