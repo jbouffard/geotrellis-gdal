@@ -71,9 +71,9 @@ case class GDALWarpOptions(
   /** -te, set georeferenced extents of output file to be created (with a CRS specified) */
   te: Option[(Extent, CRS)] = None,
   /** -srcnodata, set nodata masking values for input bands (different values can be supplied for each band) */
-  srcNoData: List[Double] = Nil,
+  srcNoData: List[String] = Nil,
   /** -srcnodata, set nodata masking values for output bands (different values can be supplied for each band) */
-  dstNoData: List[Double] = Nil,
+  dstNoData: List[String] = Nil,
   /** -ovr,  To specify which overview level of source files must be used.
     *        The default choice, AUTO, will select the overview level whose resolution is the closest to the target resolution.
     *        Specify an integer value (0-based, i.e. 0=1st overview level) to select a particular level.
