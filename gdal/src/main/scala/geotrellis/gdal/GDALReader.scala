@@ -54,7 +54,8 @@ class GDALReader(val dataset: Dataset) {
     gridBounds: GridBounds = GridBounds(0, 0, dataset.getRasterXSize - 1, dataset.getRasterYSize - 1),
     bufXSize: Option[Int] = None,
     bufYSize: Option[Int] = None,
-    bands: Seq[Int] = 0 until bandCount
+    bands: Seq[Int] = 0 until bandCount,
+    targetCellType: Option[CellType] = None
   ): MultibandTile = AnyRef.synchronized {
     // NOTE: Bands are not 0-base indexed, so we must add 1// NOTE: Bands are not 0-base indexed, so we must add 1
     val baseBand = dataset.GetRasterBand(1)
@@ -77,12 +78,17 @@ class GDALReader(val dataset: Dataset) {
     val typeSizeInBytes = gdal.GetDataTypeSize(bufferType) / 8
     val bufferSize = bandCount * pixelCount * typeSizeInBytes
 
-    val cellType = GDALUtils.dataTypeToCellType(
-      datatype = bufferType,
-      noDataValue = noDataValue,
-      typeSizeInBits = Some(typeSizeInBits),
-      minMaxValues = minMax
-    )
+    val cellType =
+      targetCellType match {
+        case Some(ct) => println(s"\n\nI matched a targetCellType: ${ct}"); ct
+        case None =>
+          GDALUtils.dataTypeToCellType(
+            datatype = bufferType,
+            noDataValue = noDataValue,
+            typeSizeInBits = Some(typeSizeInBits),
+            minMaxValues = minMax
+          )
+      }
 
     if (bufferType == gdalconstConstants.GDT_Byte) {
       // in the byte case we can strictly use
@@ -121,7 +127,11 @@ class GDALReader(val dataset: Dataset) {
             case c: ByteCells with NoDataHandling => c
             case _ => ByteCellType
           }
-          MultibandTile(bandsDataArray.map { b => ByteArrayTile(b, gridBounds.width, gridBounds.height, ct) })
+          MultibandTile(
+            bandsDataArray.map { b =>
+              val values = b.map { v => if (isNoData(v)) v else v.toByte }
+              ByteArrayTile(values, gridBounds.width, gridBounds.height, ct)
+            })
         }
       }
     } else {
