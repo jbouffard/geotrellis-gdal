@@ -79,16 +79,14 @@ class GDALReader(val dataset: Dataset) {
     val bufferSize = bandCount * pixelCount * typeSizeInBytes
 
     val cellType =
-      targetCellType match {
-        case Some(ct) => println(s"\n\nI matched a targetCellType: ${ct}"); ct
-        case None =>
-          GDALUtils.dataTypeToCellType(
-            datatype = bufferType,
-            noDataValue = noDataValue,
-            typeSizeInBits = Some(typeSizeInBits),
-            minMaxValues = minMax
-          )
-      }
+      targetCellType.getOrElse(
+        GDALUtils.dataTypeToCellType(
+          datatype = bufferType,
+          noDataValue = noDataValue,
+          typeSizeInBits = Some(typeSizeInBits),
+          minMaxValues = minMax
+        )
+      )
 
     if (bufferType == gdalconstConstants.GDT_Byte) {
       // in the byte case we can strictly use
